@@ -9,7 +9,7 @@
 
 Each pull request must include:
 
-- linked `VALIDATION_RELEASE_BACKLOG.md` item;
+- linked [validation release backlog](delivery/VALIDATION_RELEASE_BACKLOG.md) item;
 - summary of behavior change;
 - validation commands run;
 - screenshots or response examples when API/UI behavior changes;

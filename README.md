@@ -99,21 +99,22 @@ Included now:
 
 | Document | Purpose |
 |---|---|
-| `PROJECT_CONTEXT.md` | Problem, users, scope, rules, constraints, terminology |
-| `ARCHITECTURE.md` | Modules, boundaries, data flow, trade-offs |
-| `DOMAIN_MODEL.md` | Domain entities and ownership |
-| `DATABASE_DESIGN.md` | ERD, constraints, migration policy |
-| `API_DESIGN.md` | API conventions, auth, errors, contract references |
-| `SECURITY.md` | Authentication, authorization, secrets, data classification |
-| `TEST_STRATEGY.md` | Test layers, commands, fixture approach |
-| `RUNBOOK.md` | Local run, health checks, backup/restore, incident steps |
-| `AGENTS.md` | Rules for AI/coding agents working in this repo |
-| `ADRs/` | Architecture decision records |
+| [Documentation index](docs/INDEX.md) | Full project, architecture, delivery, risk, operations, and stage map |
+| [Project context](docs/project/PROJECT_CONTEXT.md) | Problem, users, scope, rules, constraints, terminology |
+| [Architecture](docs/architecture/ARCHITECTURE.md) | Modules, boundaries, data flow, trade-offs |
+| [Domain model](docs/architecture/DOMAIN_MODEL.md) | Domain entities and ownership |
+| [Database design](docs/architecture/DATABASE_DESIGN.md) | ERD, constraints, migration policy |
+| [API design](docs/architecture/API_DESIGN.md) | API conventions, auth, errors, contract references |
+| [Security](docs/operations/SECURITY.md) | Authentication, authorization, secrets, data classification |
+| [Test strategy](docs/operations/TEST_STRATEGY.md) | Test layers, commands, fixture approach |
+| [Runbook](docs/operations/RUNBOOK.md) | Local run, health checks, backup/restore, incident steps |
+| [AGENTS.md](AGENTS.md) | Rules for AI/coding agents working in this repo |
+| [ADRs](docs/architecture/ADRs/) | Architecture decision records |
 
 ## Contribution Workflow
 
 1. Create a short-lived branch from `main`.
-2. Keep changes small and mapped to `VALIDATION_RELEASE_BACKLOG.md`.
+2. Keep changes small and mapped to [validation release backlog](docs/delivery/VALIDATION_RELEASE_BACKLOG.md).
 3. Run `make verify` before opening a pull request.
 4. Update docs when behavior, API, schema, or operations change.
 5. Do not merge changes that weaken tenant isolation, auditability, exact money, idempotency, or deterministic matching.

@@ -261,7 +261,7 @@ A customer or reseller creates a booking containing one or more tourism services
 
 ### 6.2 Current-state map
 
-See [`CURRENT_STATE_WORKFLOW.mmd`](./CURRENT_STATE_WORKFLOW.mmd) for the standalone Mermaid source.
+Standalone Mermaid source can be extracted to `CURRENT_STATE_WORKFLOW.mmd` if needed.
 
 ```mermaid
 flowchart TD
@@ -411,7 +411,7 @@ Until those questions are answered, the gap remains a **testable hypothesis**, n
 
 ## 11. Proposed Future-State Workflow
 
-See [`FUTURE_STATE_WORKFLOW.mmd`](./FUTURE_STATE_WORKFLOW.mmd) for the standalone Mermaid source.
+Standalone Mermaid source can be extracted to `FUTURE_STATE_WORKFLOW.mmd` if needed.
 
 ```mermaid
 flowchart TD
@@ -573,7 +573,7 @@ The first paragraph is supported by public evidence. The second paragraph is the
 
 ## 16. Direct-User Validation Plan
 
-The accompanying [`USER_INTERVIEW_GUIDE.md`](./USER_INTERVIEW_GUIDE.md) contains the complete interview structure.
+The complete interview structure can be extracted to `USER_INTERVIEW_GUIDE.md` if needed.
 
 ### Minimum sequence
 
@@ -585,7 +585,7 @@ The accompanying [`USER_INTERVIEW_GUIDE.md`](./USER_INTERVIEW_GUIDE.md) contains
 6. Show the future-state concept only after the current workflow is understood.
 7. Ask what would stop adoption.
 8. Update the personas, workflow, assumptions, and success measures.
-9. Record evidence in [`EVIDENCE_REGISTER.md`](./EVIDENCE_REGISTER.md).
+9. Record evidence in an evidence register.
 10. Reject or narrow the product if the primary pain is not repeated across organisations.
 
 ### Interview anti-patterns

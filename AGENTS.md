@@ -10,16 +10,16 @@ TripLedger is a financial-control application. Correctness, auditability, tenant
 
 Read these first:
 
-1. `PROJECT_CONTEXT.md`
-2. `ARCHITECTURE.md`
-3. `DOMAIN_MODEL.md`
-4. `DATABASE_DESIGN.md`
-5. `API_DESIGN.md`
-6. `SECURITY.md`
-7. `TEST_STRATEGY.md`
-8. `VALIDATION_RELEASE_BACKLOG.md`
+1. [Project context](docs/project/PROJECT_CONTEXT.md)
+2. [Architecture](docs/architecture/ARCHITECTURE.md)
+3. [Domain model](docs/architecture/DOMAIN_MODEL.md)
+4. [Database design](docs/architecture/DATABASE_DESIGN.md)
+5. [API design](docs/architecture/API_DESIGN.md)
+6. [Security](docs/operations/SECURITY.md)
+7. [Test strategy](docs/operations/TEST_STRATEGY.md)
+8. [Validation release backlog](docs/delivery/VALIDATION_RELEASE_BACKLOG.md)
 
-For architectural changes, also read the relevant ADRs in `ADRs/`.
+For architectural changes, also read the relevant ADRs in [docs/architecture/ADRs](docs/architecture/ADRs/).
 
 ## Validation Commands
 
@@ -65,7 +65,7 @@ docker compose up --build
 
 ## Implementation Rules
 
-- Link work to `VALIDATION_RELEASE_BACKLOG.md`.
+- Link work to [validation release backlog](docs/delivery/VALIDATION_RELEASE_BACKLOG.md).
 - Keep changes vertical and small.
 - Update tests with behavior changes.
 - Update documentation in the same change when contracts, schema, operations, or security behavior change.
@@ -74,4 +74,4 @@ docker compose up --build
 
 ## Done Standard
 
-A change is not done until `DEFINITION_OF_DONE.md` is satisfied for the affected slice.
+A change is not done until [Definition of Done](docs/delivery/DEFINITION_OF_DONE.md) is satisfied for the affected slice.
