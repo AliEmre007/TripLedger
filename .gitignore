@@ -1,0 +1,10 @@
+.env
+.idea/
+.vscode/
+target/
+*.log
+*.tmp
+*.class
+*.zip
+.DS_Store
+node_modules/

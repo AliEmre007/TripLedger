@@ -1,0 +1,44 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-tripledger}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-tripledger}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-tripledger_dev_password}
+      TRIPLEDGER_ALLOWED_ORIGINS: ${TRIPLEDGER_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080,http://localhost:18080}
+      TRIPLEDGER_LOG_LEVEL: ${TRIPLEDGER_LOG_LEVEL:-INFO}
+    ports:
+      - "${APP_PORT:-18080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tripledger}
+      POSTGRES_USER: ${POSTGRES_USER:-tripledger}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tripledger_dev_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tripledger} -d ${POSTGRES_DB:-tripledger}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  test:
+    image: maven:3.9.10-eclipse-temurin-21
+    profiles:
+      - test
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - maven_cache:/root/.m2
+    command: mvn -B verify
+
+volumes:
+  postgres_data:
+  maven_cache:
