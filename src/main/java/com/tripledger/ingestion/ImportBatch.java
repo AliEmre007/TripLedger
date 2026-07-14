@@ -101,7 +101,11 @@ public class ImportBatch {
     }
 
     public void complete(Instant completedAt) {
-        this.status = ImportBatchStatus.COMPLETED;
+        if (rejectedCount > 0 || failedCount > 0) {
+            this.status = ImportBatchStatus.COMPLETED_WITH_ERRORS;
+        } else {
+            this.status = ImportBatchStatus.COMPLETED;
+        }
         this.completedAt = completedAt;
         this.failureCode = null;
         this.failureReason = null;

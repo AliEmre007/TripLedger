@@ -233,6 +233,49 @@ Request:
 }
 ```
 
+### `POST /api/v1/booking-imports`
+
+Imports booking CSV content and creates canonical booking records.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+
+Request:
+
+```json
+{
+  "sourceSystemId": "uuid",
+  "fileName": "booking_valid_v1.csv",
+  "fileChecksum": "sha256:abc",
+  "csvContent": "template_type,template_version,..."
+}
+```
+
+Rules:
+
+- Supported booking template is `BOOKING` version `1`.
+- Valid rows create or update one canonical booking and one booking item.
+- Source identity is `organisation + source system + BOOKING + external booking id + source version`.
+- Unchanged source identities are counted as duplicates and do not create duplicate bookings or items.
+- Older source versions are rejected with `STALE_SOURCE_VERSION` and do not overwrite the current booking.
+- Mixed valid and invalid rows complete the batch as `COMPLETED_WITH_ERRORS`.
+
+Errors:
+
+- `UNSUPPORTED_TEMPLATE_VERSION`
+- `MISSING_REQUIRED_COLUMN`
+- `MISSING_REQUIRED_FIELD`
+- `INVALID_FIELD_TYPE`
+- `INVALID_CURRENCY`
+- `INVALID_CURRENCY_PRECISION`
+- `INVALID_BOOKING_DATE`
+- `STALE_SOURCE_VERSION`
+- `SOURCE_SYSTEM_NOT_FOUND`
+- `INACTIVE_SOURCE_SYSTEM`
+
 ### Actuator
 
 - `GET /actuator/health`

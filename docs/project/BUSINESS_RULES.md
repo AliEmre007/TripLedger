@@ -628,7 +628,9 @@ Every generated export has a version, filter definition, row count, checksum, ac
 | `IMPORT_BATCH_TERMINAL` | Completed or failed batch is changed | Reject mutation |
 | `IMPORT_LIMIT_EXCEEDED` | File size or row limit exceeded | Reject file |
 | `MISSING_REQUIRED_COLUMN` | Required CSV column absent | Fail validation |
+| `MISSING_REQUIRED_FIELD` | Required row field absent | Reject row |
 | `INVALID_FIELD_TYPE` | Field cannot be parsed | Reject row |
+| `INVALID_BOOKING_DATE` | Booking or item date range is invalid | Reject row |
 | `INVALID_CURRENCY` | Currency unsupported or missing | Reject row |
 | `INVALID_CURRENCY_PRECISION` | Too many fractional digits | Reject row |
 | `STALE_SOURCE_VERSION` | Older version attempts overwrite | Reject or warning without overwrite |

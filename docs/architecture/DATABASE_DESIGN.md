@@ -146,7 +146,7 @@ Unique:
 
 Checks:
 
-- `status in ('RECEIVED', 'COMPLETED', 'FAILED')`
+- `status in ('RECEIVED', 'COMPLETED', 'COMPLETED_WITH_ERRORS', 'FAILED')`
 - counts are non-negative and sum to `total_count`
 - terminal batches have `completed_at`
 - failed batches have `failure_code` and `failure_reason`
@@ -222,6 +222,8 @@ Unique:
 Checks:
 
 - `service_end_date >= service_start_date` when both exist.
+- `lifecycle_status in ('DRAFT', 'CONFIRMED', 'IN_SERVICE', 'COMPLETED', 'CANCELLED')`
+- `contracted_selling_amount >= 0`
 
 ### booking_item
 
@@ -230,6 +232,8 @@ Checks:
 | id | uuid | primary key |
 | organisation_id | uuid | not null |
 | booking_id | uuid | not null |
+| source_record_id | uuid | nullable |
+| item_external_id | text | not null |
 | service_type | text | not null |
 | service_start_date | date | not null |
 | service_end_date | date | not null |
@@ -242,6 +246,13 @@ Checks:
 Checks:
 
 - `service_end_date >= service_start_date`
+- `service_type in ('HOTEL', 'TOUR', 'TRANSFER', 'OTHER')`
+- `state in ('ACTIVE')`
+- `selling_amount >= 0`
+
+Unique:
+
+- `(organisation_id, booking_id, item_external_id)`
 
 ### supplier
 

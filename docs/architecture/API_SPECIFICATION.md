@@ -233,6 +233,58 @@ Request:
 }
 ```
 
+### `POST /booking-imports`
+
+Imports booking CSV content through the import-batch lifecycle.
+
+Roles: Administrator, Finance, Operations.
+
+Request:
+
+```json
+{
+  "sourceSystemId": "uuid",
+  "fileName": "booking_valid_v1.csv",
+  "fileChecksum": "sha256:abc",
+  "csvContent": "template_type,template_version,..."
+}
+```
+
+Response:
+
+```json
+{
+  "importBatchId": "uuid",
+  "status": "COMPLETED",
+  "totalCount": 3,
+  "acceptedCount": 3,
+  "duplicateCount": 0,
+  "rejectedCount": 0,
+  "failedCount": 0,
+  "completedAt": "2026-07-14T06:00:00Z"
+}
+```
+
+Rules:
+
+- Supported booking CSV rows use `template_type=BOOKING` and `template_version=1`.
+- Valid rows create or update canonical booking and booking-item records.
+- Duplicate unchanged source identities are counted as `DUPLICATE`.
+- Older source versions are rejected as `STALE_SOURCE_VERSION`.
+- Rows with invalid fields are rejected with row-level field, error code, and reason.
+- Batches with accepted and rejected rows finish as `COMPLETED_WITH_ERRORS`.
+
+Errors:
+
+- `UNSUPPORTED_TEMPLATE_VERSION`
+- `MISSING_REQUIRED_COLUMN`
+- `MISSING_REQUIRED_FIELD`
+- `INVALID_FIELD_TYPE`
+- `INVALID_CURRENCY`
+- `INVALID_CURRENCY_PRECISION`
+- `INVALID_BOOKING_DATE`
+- `STALE_SOURCE_VERSION`
+
 ## 7. Bookings
 
 ### `GET /bookings`

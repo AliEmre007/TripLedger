@@ -55,6 +55,8 @@ Source-system creation uses `SOURCE_SYSTEM_MANAGE` and is Administrator-only. So
 
 Import-batch creation, row-result recording, completion, and failure marking use `OPERATIONAL_WRITE`. Import-batch reads use `PROTECTED_READ`. Every import-batch and row-result query is filtered by the actor organisation, and inactive source systems cannot receive new import batches.
 
+Booking CSV imports use the same `OPERATIONAL_WRITE` boundary. Accepted rows create organisation-scoped source records, bookings, and booking items. Rejected row responses include field names, stable error codes, and safe reasons only; raw CSV content must not be written to logs.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

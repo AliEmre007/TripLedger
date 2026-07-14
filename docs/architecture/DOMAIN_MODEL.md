@@ -130,6 +130,7 @@ Fields:
 Rules:
 
 - Batch status is `RECEIVED`, `COMPLETED`, or `FAILED`.
+- Mixed accepted and rejected row outcomes use `COMPLETED_WITH_ERRORS`.
 - Row outcomes are counted as `ACCEPTED`, `DUPLICATE`, `REJECTED`, or `FAILED`.
 - Unsupported template version fails before domain writes.
 - Valid rows may be accepted while invalid rows are rejected visibly.
@@ -180,6 +181,9 @@ Fields:
 Rules:
 
 - External booking id identifies one canonical booking per source system in an organisation.
+- Newer source versions update the current canonical booking.
+- Unchanged re-imports are counted as duplicates and do not create duplicate bookings or items.
+- Older source versions are rejected as stale and do not overwrite the current booking.
 - Cancellation changes state and creates financial expectations; it does not delete history.
 
 ### Booking Item
@@ -191,6 +195,8 @@ Fields:
 - `id`
 - `organisation_id`
 - `booking_id`
+- `source_record_id`
+- `item_external_id`
 - `service_type`
 - `service_start_date`
 - `service_end_date`
