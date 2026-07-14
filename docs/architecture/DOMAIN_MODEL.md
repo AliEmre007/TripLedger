@@ -246,6 +246,8 @@ Rules:
 - Obligation amount is positive.
 - Credits and cancellations reduce active supplier cost through separate records or versions.
 - Unlinked obligations are visible but excluded from booking economics.
+- Imported obligations preserve source-record provenance and duplicate source identities do not create duplicate obligations.
+- Non-cancelled linked obligations contribute to active supplier cost; unlinked obligations do not.
 
 ### Financial Event
 

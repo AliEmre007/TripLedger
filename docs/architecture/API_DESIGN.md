@@ -349,6 +349,71 @@ Errors:
 - `SOURCE_SYSTEM_NOT_FOUND`
 - `INACTIVE_SOURCE_SYSTEM`
 
+### `POST /api/v1/supplier-obligation-imports`
+
+Imports supplier-obligation CSV content and creates supplier cost records.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+
+Request:
+
+```json
+{
+  "sourceSystemId": "uuid",
+  "fileName": "supplier_obligations.csv",
+  "fileChecksum": "sha256:abc",
+  "csvContent": "template_type,template_version,..."
+}
+```
+
+Rules:
+
+- Supported supplier-obligation template is `SUPPLIER_OBLIGATION` version `1`.
+- Valid rows create one source record, one supplier when needed, and one supplier obligation.
+- Source identity is `organisation + source system + SUPPLIER_OBLIGATION + external obligation id + source version`.
+- Duplicate unchanged source identities are counted as `DUPLICATE`.
+- Changed content for an existing source identity is rejected with `STALE_SOURCE_VERSION`.
+- Amounts must be positive and use at most two fractional digits.
+- Unknown booking or item references are accepted as unlinked obligations for review.
+- Linked non-cancelled obligations expose `contributesToActiveSupplierCost=true`; unlinked obligations are excluded.
+
+Errors:
+
+- `UNSUPPORTED_TEMPLATE_VERSION`
+- `MISSING_REQUIRED_COLUMN`
+- `MISSING_REQUIRED_FIELD`
+- `INVALID_FIELD_TYPE`
+- `INVALID_CURRENCY`
+- `INVALID_CURRENCY_PRECISION`
+- `STALE_SOURCE_VERSION`
+- `SOURCE_SYSTEM_NOT_FOUND`
+- `INACTIVE_SOURCE_SYSTEM`
+
+### `GET /api/v1/supplier-obligations`
+
+Lists supplier obligations inside the actor organisation.
+
+Query parameters:
+
+- `unlinked=true` returns only obligations with no booking or booking-item link.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
+Rules:
+
+- Results are filtered by the actor organisation.
+- Responses include source-record provenance and supplier reference/name.
+- Raw source payload content is not returned.
+
 ### Actuator
 
 - `GET /actuator/health`

@@ -397,15 +397,112 @@ Errors:
 
 ## 8. Supplier Obligations
 
+### `POST /supplier-obligation-imports`
+
+Imports supplier-obligation CSV content.
+
+Roles: Administrator, Finance, Operations.
+
+Request:
+
+```json
+{
+  "sourceSystemId": "uuid",
+  "fileName": "supplier_obligations.csv",
+  "fileChecksum": "sha256:abc",
+  "csvContent": "template_type,template_version,..."
+}
+```
+
+Response:
+
+```json
+{
+  "importBatchId": "uuid",
+  "status": "COMPLETED",
+  "totalCount": 2,
+  "acceptedCount": 2,
+  "duplicateCount": 0,
+  "rejectedCount": 0,
+  "failedCount": 0,
+  "completedAt": "2026-07-14T06:00:00Z"
+}
+```
+
+Rules:
+
+- Supported template is `SUPPLIER_OBLIGATION` version `1`.
+- Valid rows create supplier obligations with source-record provenance.
+- Supplier references are upserted inside the actor organisation.
+- Unknown booking or item references are accepted as unlinked obligations.
+- Unlinked obligations are excluded from booking economics.
+- Duplicate unchanged source identities produce row outcome `DUPLICATE` and no duplicate obligation.
+- Amount must be positive and use at most two fractional digits.
+
+Errors:
+
+- `UNSUPPORTED_TEMPLATE_VERSION`
+- `MISSING_REQUIRED_COLUMN`
+- `MISSING_REQUIRED_FIELD`
+- `INVALID_FIELD_TYPE`
+- `INVALID_CURRENCY`
+- `INVALID_CURRENCY_PRECISION`
+- `STALE_SOURCE_VERSION`
+- `SOURCE_SYSTEM_NOT_FOUND`
+- `INACTIVE_SOURCE_SYSTEM`
+
+### `GET /supplier-obligations`
+
+Returns supplier obligations for review.
+
+Query parameters:
+
+- `unlinked`: optional boolean. When `true`, returns only obligations excluded from booking economics because no booking or booking item is linked.
+
+Roles: Administrator, Finance, Operations, Read-only Manager.
+
+Response:
+
+```json
+[
+  {
+    "id": "uuid",
+    "organisationId": "uuid",
+    "bookingId": null,
+    "bookingItemId": null,
+    "supplierId": "uuid",
+    "supplierReference": "TOUR-NOVA",
+    "supplierName": "Tour Nova",
+    "amount": 75.00,
+    "currency": "EUR",
+    "dueDate": "2026-08-12",
+    "status": "EXPECTED",
+    "linkedToBookingEconomics": false,
+    "contributesToActiveSupplierCost": false,
+    "sourceRecord": {
+      "id": "uuid",
+      "recordType": "SUPPLIER_OBLIGATION",
+      "externalRecordId": "SUP-OBL-UNLINKED-1",
+      "sourceVersion": "1"
+    },
+    "createdAt": "2026-07-14T06:00:00Z"
+  }
+]
+```
+
+Rules:
+
+- Lookup is scoped to the actor organisation.
+- Source provenance is included; raw CSV payload content is not returned.
+- `contributesToActiveSupplierCost` is false for unlinked obligations.
+
 ### `GET /bookings/{bookingId}/supplier-obligations`
 
-Returns obligations linked to the booking.
-
-Roles: all authenticated roles, with Operations limited by financial-detail policy.
+Deferred beyond VR-010. Booking economics and booking-scoped supplier-cost views are added with later economics slices.
 
 ### `POST /supplier-obligations/{obligationId}/credits`
 
-Creates a supplier credit or cancellation event.
+Deferred beyond VR-010. Creates a supplier credit or cancellation event.
 
 Roles: Administrator, Finance; Operations only before finance control when allowed.
 

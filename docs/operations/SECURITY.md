@@ -59,6 +59,8 @@ Booking CSV imports use the same `OPERATIONAL_WRITE` boundary. Accepted rows cre
 
 Booking detail reads use `PROTECTED_READ` and are filtered by the actor organisation. Missing bookings and cross-organisation booking ids return `BOOKING_NOT_FOUND` without confirming whether another organisation owns the id. Detail responses may include source identity, import batch id, row number, version, and checksum provenance, but must not return raw CSV payload content.
 
+Supplier-obligation CSV imports use `OPERATIONAL_WRITE`. Accepted rows create organisation-scoped source records, suppliers, and supplier obligations. Unknown booking or item references are accepted as unlinked obligations rather than linked across tenants. Supplier-obligation reads use `PROTECTED_READ`, are filtered by organisation, and expose provenance and review state without raw CSV payload content.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

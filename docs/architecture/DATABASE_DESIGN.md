@@ -263,6 +263,7 @@ Unique:
 | name | text | not null |
 | external_reference | text | nullable |
 | status | text | not null |
+| created_at | timestamptz | not null |
 
 Unique:
 
@@ -288,6 +289,10 @@ Checks:
 
 - `amount > 0`
 - booking and booking item references, when present, must belong to same organisation.
+
+Unique:
+
+- `(organisation_id, source_record_id)` where `source_record_id is not null`
 
 ### financial_event
 

@@ -1,5 +1,6 @@
 package com.tripledger.booking;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,6 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
             UUID sourceSystemId,
             String externalBookingId
     );
+
+    List<Booking> findAllByOrganisationIdAndExternalBookingId(UUID organisationId, String externalBookingId);
 }

@@ -12,6 +12,7 @@ import java.util.UUID;
 public class SourceRecord {
 
     public static final String BOOKING_RECORD_TYPE = "BOOKING";
+    public static final String SUPPLIER_OBLIGATION_RECORD_TYPE = "SUPPLIER_OBLIGATION";
 
     @Id
     private UUID id;

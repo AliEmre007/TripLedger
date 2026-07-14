@@ -17,7 +17,7 @@ public record SourceRecordDetail(
         Instant acceptedAt
 ) {
 
-    static SourceRecordDetail from(SourceRecord sourceRecord) {
+    public static SourceRecordDetail from(SourceRecord sourceRecord) {
         if (sourceRecord == null) {
             return null;
         }
