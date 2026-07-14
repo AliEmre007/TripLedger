@@ -64,6 +64,13 @@ Logs include correlation id through MDC. Logs must not include:
 - payment account credentials;
 - source payloads unless explicitly redacted.
 
+Client-provided correlation ids are accepted only when they are bounded and safe for logs:
+
+- maximum 128 characters;
+- letters, numbers, `.`, `_`, `:`, and `-` only.
+
+Blank, unsafe, or overlong correlation ids are replaced with a server-generated id before being written to logs or returned in API responses.
+
 ## Security Validation
 
 Run:

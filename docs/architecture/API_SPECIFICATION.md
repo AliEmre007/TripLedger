@@ -22,9 +22,11 @@
 | Header | Direction | Required | Purpose |
 |---|---|---|---|
 | `Authorization: Bearer <token>` | request | protected endpoints | OIDC access token |
-| `X-Correlation-Id` | request | optional | Client-provided correlation id; server creates one if absent |
+| `X-Correlation-Id` | request | optional | Client-provided correlation id; server creates one if absent or unsafe |
 | `Idempotency-Key` | request | write endpoints where specified | Prevent duplicate client retries |
 | `X-Correlation-Id` | response | always | Correlate user errors to logs |
+
+Client-provided correlation ids are trimmed before use. Accepted values are limited to letters, numbers, `.`, `_`, `:`, and `-`, up to 128 characters. Blank, unsafe, or overlong values are replaced with a server-generated id.
 
 ## 3. Common Error Model
 
@@ -49,6 +51,14 @@ Rules:
 - `message` is safe for users and must not reveal restricted data.
 - `code` maps to `BUSINESS_RULES.md` or an API-specific validation code.
 - Cross-organisation access returns a non-success response without confirming target existence.
+
+Common API-specific validation codes:
+
+- `INVALID_REQUEST`: request validation failed, JSON is malformed, or a required request parameter is missing.
+- `METHOD_NOT_ALLOWED`: HTTP method is not supported for the endpoint.
+- `UNSUPPORTED_MEDIA_TYPE`: request content type is not supported for the endpoint.
+- `NOT_FOUND`: endpoint was not found.
+- `INTERNAL_ERROR`: unexpected server failure with a safe user message.
 
 ## 4. Authentication and User Context
 

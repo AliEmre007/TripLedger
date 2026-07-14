@@ -21,6 +21,13 @@ Example response:
 
 Every response includes `X-Correlation-Id`.
 
+Correlation id rules:
+
+- A client may send `X-Correlation-Id`.
+- Safe client values are trimmed and echoed back.
+- Missing, blank, unsafe, or overlong values are replaced with a server-generated id.
+- Accepted client values are limited to letters, numbers, `.`, `_`, `:`, and `-`, up to 128 characters.
+
 ### `GET /api/v1/me`
 
 Returns the current protected actor context.
@@ -141,6 +148,14 @@ Rules:
 - Errors must include a correlation id.
 - Messages must be safe for users.
 - Restricted data, source payloads, secrets, and tokens must not appear in errors.
+
+Common framework-level error codes:
+
+- `INVALID_REQUEST`: validation failure, malformed JSON, missing required request parameter.
+- `METHOD_NOT_ALLOWED`: HTTP method is not supported for the endpoint.
+- `UNSUPPORTED_MEDIA_TYPE`: request content type is not supported for the endpoint.
+- `NOT_FOUND`: endpoint was not found.
+- `INTERNAL_ERROR`: unexpected server failure with a safe user message.
 
 ## Future API Rules
 
