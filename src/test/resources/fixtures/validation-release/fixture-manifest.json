@@ -1,0 +1,144 @@
+{
+  "slice": "VR-001",
+  "description": "Executable validation-release examples for imports, exact money, economics, matching, discrepancy, and timeline evidence.",
+  "requiredAcceptanceCriteria": [
+    "AC-011",
+    "AC-012",
+    "AC-013",
+    "AC-014",
+    "AC-015",
+    "AC-016",
+    "AC-017",
+    "AC-018",
+    "AC-019",
+    "AC-020",
+    "AC-021",
+    "AC-033",
+    "AC-034",
+    "AC-035",
+    "AC-036",
+    "AC-040",
+    "AC-041",
+    "AC-042"
+  ],
+  "fixtures": [
+    {
+      "path": "booking/booking_valid_v1.csv",
+      "type": "BOOKING_CSV",
+      "covers": ["AC-011"],
+      "expected": {
+        "accepted": 3,
+        "duplicate": 0,
+        "rejected": 0,
+        "warning": 0,
+        "batchStatus": "COMPLETED"
+      }
+    },
+    {
+      "path": "booking/booking_mixed_rows.csv",
+      "type": "BOOKING_CSV",
+      "covers": ["AC-012", "AC-020"],
+      "expected": {
+        "accepted": 8,
+        "duplicate": 0,
+        "rejected": 2,
+        "warning": 0,
+        "batchStatus": "COMPLETED_WITH_ERRORS"
+      }
+    },
+    {
+      "path": "booking/booking_duplicate_reimport.csv",
+      "type": "BOOKING_CSV",
+      "covers": ["AC-013"],
+      "expected": {
+        "accepted": 0,
+        "duplicate": 3,
+        "rejected": 0,
+        "warning": 0,
+        "batchStatus": "COMPLETED"
+      }
+    },
+    {
+      "path": "booking/booking_stale_version.csv",
+      "type": "BOOKING_CSV",
+      "covers": ["AC-014"],
+      "expected": {
+        "accepted": 0,
+        "duplicate": 0,
+        "rejected": 1,
+        "warning": 0,
+        "batchStatus": "COMPLETED_WITH_ERRORS",
+        "errorCode": "STALE_SOURCE_VERSION"
+      }
+    },
+    {
+      "path": "booking/unsupported_template_version.csv",
+      "type": "BOOKING_CSV",
+      "covers": ["AC-021"],
+      "expected": {
+        "accepted": 0,
+        "duplicate": 0,
+        "rejected": 0,
+        "warning": 0,
+        "batchStatus": "FAILED",
+        "errorCode": "UNSUPPORTED_TEMPLATE_VERSION"
+      }
+    },
+    {
+      "path": "finance/financial_events_valid.csv",
+      "type": "FINANCIAL_EVENT_CSV",
+      "covers": ["AC-015", "AC-017"],
+      "expected": {
+        "accepted": 6,
+        "duplicate": 0,
+        "rejected": 0,
+        "warning": 0,
+        "batchStatus": "COMPLETED"
+      }
+    },
+    {
+      "path": "finance/financial_events_invalid_money.csv",
+      "type": "FINANCIAL_EVENT_CSV",
+      "covers": ["AC-016"],
+      "expected": {
+        "accepted": 0,
+        "duplicate": 0,
+        "rejected": 2,
+        "warning": 0,
+        "batchStatus": "COMPLETED_WITH_ERRORS"
+      }
+    },
+    {
+      "path": "supplier/supplier_obligations.csv",
+      "type": "SUPPLIER_OBLIGATION_CSV",
+      "covers": ["AC-018", "AC-019"],
+      "expected": {
+        "accepted": 2,
+        "duplicate": 0,
+        "rejected": 0,
+        "warning": 0,
+        "batchStatus": "COMPLETED"
+      }
+    },
+    {
+      "path": "economics/economics_examples.json",
+      "type": "ECONOMICS_EXPECTATION",
+      "covers": ["AC-033", "AC-034", "AC-035", "AC-036"]
+    },
+    {
+      "path": "matching/matching_examples.json",
+      "type": "MATCHING_EXPECTATION",
+      "covers": ["AC-040", "AC-041", "AC-042"]
+    },
+    {
+      "path": "discrepancy/discrepancy_examples.json",
+      "type": "DISCREPANCY_EXPECTATION",
+      "covers": ["AC-041"]
+    },
+    {
+      "path": "timeline/timeline_examples.json",
+      "type": "TIMELINE_EXPECTATION",
+      "covers": ["AC-011", "AC-015", "AC-036", "AC-040"]
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "ruleVersion": "economics-v1",
+  "examples": [
+    {
+      "id": "normal-booking-economics",
+      "covers": ["AC-033", "AC-036"],
+      "bookingReference": "TL-BKG-1001",
+      "inputs": {
+        "contractedGrossSale": {"amount": "1000.00", "currency": "EUR"},
+        "approvedDiscount": {"amount": "50.00", "currency": "EUR"},
+        "expectedChannelCommission": {"amount": "142.50", "currency": "EUR"},
+        "expectedPaymentFee": {"amount": "20.00", "currency": "EUR"},
+        "activeSupplierCost": {"amount": "500.00", "currency": "EUR"}
+      },
+      "expected": {
+        "customerReceivable": {"amount": "950.00", "currency": "EUR"},
+        "deductions": {"amount": "162.50", "currency": "EUR"},
+        "activeSupplierCost": {"amount": "500.00", "currency": "EUR"},
+        "estimatedGrossMargin": {"amount": "287.50", "currency": "EUR"},
+        "status": "READY"
+      },
+      "explanationComponents": [
+        "source-record:booking/TL-BKG-1001/1",
+        "source-record:supplier/SUP-OBL-1001/1",
+        "source-record:finance/COM-1001/1",
+        "source-record:finance/FEE-1001/1"
+      ]
+    },
+    {
+      "id": "cancelled-booking-refund",
+      "covers": ["AC-034", "AC-036"],
+      "bookingReference": "TL-BKG-1004",
+      "inputs": {
+        "contractedGrossSale": {"amount": "1000.00", "currency": "EUR"},
+        "expectedRefund": {"amount": "800.00", "currency": "EUR"},
+        "retainedCancellationFee": {"amount": "200.00", "currency": "EUR"}
+      },
+      "expected": {
+        "customerReceivable": {"amount": "200.00", "currency": "EUR"},
+        "contractedGrossSale": {"amount": "1000.00", "currency": "EUR"},
+        "refundComponent": {"amount": "800.00", "currency": "EUR"},
+        "status": "READY"
+      }
+    },
+    {
+      "id": "missing-supplier-cost",
+      "covers": ["AC-035"],
+      "bookingReference": "TL-BKG-1005",
+      "inputs": {
+        "contractedGrossSale": {"amount": "300.00", "currency": "EUR"},
+        "activeSupplierCost": "UNKNOWN"
+      },
+      "expected": {
+        "activeSupplierCost": "UNKNOWN",
+        "estimatedGrossMargin": "NOT_READY",
+        "reconciliationStatus": "NOT_READY"
+      }
+    }
+  ]
+}

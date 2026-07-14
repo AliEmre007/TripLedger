@@ -1,0 +1,2 @@
+template_type,template_version,organisation_code,source_system_code,external_booking_id,source_version,source_row_number,booking_date,service_start_date,service_end_date,lifecycle_status,item_external_id,service_type,item_start_date,item_end_date,selling_amount,selling_currency,customer_reference
+BOOKING,99,ORG-DEMO,OTA-DEMO,TL-BKG-9999,1,2,2026-07-01,2026-08-01,2026-08-02,CONFIRMED,TL-BKG-9999-ROOM,HOTEL,2026-08-01,2026-08-02,100.00,EUR,CUST-9999

@@ -1,0 +1,3 @@
+template_type,template_version,organisation_code,source_system_code,external_event_id,source_version,source_row_number,booking_reference,event_type,effective_at,amount,currency,external_customer_reference,provenance_note
+FINANCIAL_EVENT,1,ORG-DEMO,OTA-DEMO,PAY-BAD-PRECISION,1,2,TL-BKG-1002,CUSTOMER_PAYMENT,2026-07-02T10:15:00Z,100.001,EUR,CUST-1002,invalid-minor-unit
+FINANCIAL_EVENT,1,ORG-DEMO,OTA-DEMO,PAY-BAD-CURRENCY,1,3,TL-BKG-1002,CUSTOMER_PAYMENT,2026-07-02T10:15:00Z,100.00,XXX,CUST-1002,unsupported-currency

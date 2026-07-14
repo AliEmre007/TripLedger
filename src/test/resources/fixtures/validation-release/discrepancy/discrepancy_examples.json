@@ -1,0 +1,18 @@
+{
+  "ruleVersion": "discrepancy-v1",
+  "examples": [
+    {
+      "id": "ambiguous-match-review-item",
+      "covers": ["AC-041"],
+      "bookingReference": null,
+      "type": "MATCHING",
+      "component": "CUSTOMER_PAYMENT",
+      "cause": "AMBIGUOUS_MATCH",
+      "activeUniquenessKey": "ORG-DEMO|MATCHING|CUSTOMER_PAYMENT|AMBIGUOUS_MATCH|PAY-SHARED-1",
+      "expected": {
+        "created": true,
+        "duplicateActiveDiscrepancyCreatedOnRerun": false
+      }
+    }
+  ]
+}

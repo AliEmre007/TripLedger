@@ -1,0 +1,103 @@
+{
+  "ruleVersion": "matching-v1",
+  "examples": [
+    {
+      "id": "unique-exact-payment-match",
+      "covers": ["AC-040"],
+      "expectedReceipt": {
+        "bookingReference": "TL-BKG-1001",
+        "amount": "950.00",
+        "currency": "EUR",
+        "dueDate": "2026-07-02"
+      },
+      "candidateEvents": [
+        {
+          "externalEventId": "PAY-1001",
+          "bookingReference": "TL-BKG-1001",
+          "amount": "950.00",
+          "currency": "EUR",
+          "effectiveDate": "2026-07-02"
+        }
+      ],
+      "expected": {
+        "automaticMatchCreated": true,
+        "matchCount": 1,
+        "rule": "EXACT_REFERENCE_AMOUNT_CURRENCY_DATE_WINDOW"
+      }
+    },
+    {
+      "id": "ambiguous-payment-match",
+      "covers": ["AC-041"],
+      "expectedReceipt": {
+        "bookingReference": "SHARED-REF",
+        "amount": "120.00",
+        "currency": "EUR",
+        "dueDate": "2026-07-09"
+      },
+      "candidateBookings": ["TL-BKG-1003", "TL-BKG-1006"],
+      "candidateEvents": [
+        {
+          "externalEventId": "PAY-SHARED-1",
+          "bookingReference": "SHARED-REF",
+          "amount": "120.00",
+          "currency": "EUR",
+          "effectiveDate": "2026-07-09"
+        }
+      ],
+      "expected": {
+        "automaticMatchCreated": false,
+        "reviewCode": "AMBIGUOUS_MATCH"
+      }
+    },
+    {
+      "id": "cross-currency-with-rate-evidence",
+      "covers": ["AC-042"],
+      "expectedReceipt": {
+        "bookingReference": "TL-BKG-1007",
+        "amount": "100.00",
+        "currency": "EUR"
+      },
+      "candidateEvents": [
+        {
+          "externalEventId": "PAY-TRY-1007",
+          "bookingReference": "TL-BKG-1007",
+          "amount": "3500.00",
+          "currency": "TRY",
+          "conversion": {
+            "sourceCurrency": "TRY",
+            "targetCurrency": "EUR",
+            "rate": "0.0285714286",
+            "convertedAmount": "100.00",
+            "effectiveAt": "2026-07-10T12:00:00Z",
+            "rateSource": "manual-finance-evidence"
+          }
+        }
+      ],
+      "expected": {
+        "automaticMatchCreated": true,
+        "originalAndConvertedAmountsVisible": true
+      }
+    },
+    {
+      "id": "cross-currency-without-rate-evidence",
+      "covers": ["AC-042"],
+      "expectedReceipt": {
+        "bookingReference": "TL-BKG-1008",
+        "amount": "100.00",
+        "currency": "EUR"
+      },
+      "candidateEvents": [
+        {
+          "externalEventId": "PAY-TRY-1008",
+          "bookingReference": "TL-BKG-1008",
+          "amount": "3500.00",
+          "currency": "TRY"
+        }
+      ],
+      "expected": {
+        "automaticMatchCreated": false,
+        "reviewCode": "MISSING_EXCHANGE_RATE_EVIDENCE"
+      }
+    }
+  ]
+}

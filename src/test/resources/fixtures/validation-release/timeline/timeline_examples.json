@@ -1,0 +1,31 @@
+{
+  "examples": [
+    {
+      "bookingReference": "TL-BKG-1001",
+      "expectedEvents": [
+        {
+          "type": "SOURCE_RECORD_ACCEPTED",
+          "source": "booking/booking_valid_v1.csv",
+          "actor": "user:finance-demo",
+          "correlationIdRequired": true
+        },
+        {
+          "type": "FINANCIAL_EVENT_ACCEPTED",
+          "source": "finance/financial_events_valid.csv",
+          "actor": "user:finance-demo",
+          "correlationIdRequired": true
+        },
+        {
+          "type": "ECONOMICS_CALCULATED",
+          "ruleVersion": "economics-v1",
+          "componentEvidenceRequired": true
+        },
+        {
+          "type": "AUTOMATIC_MATCH_CREATED",
+          "ruleVersion": "matching-v1",
+          "componentEvidenceRequired": true
+        }
+      ]
+    }
+  ]
+}
