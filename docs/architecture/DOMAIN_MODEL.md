@@ -123,12 +123,17 @@ Fields:
 - `received_by`
 - `received_at`
 - `completed_at`
+- `failure_code`
+- `failure_reason`
 - `row_counts`
 
 Rules:
 
+- Batch status is `RECEIVED`, `COMPLETED`, or `FAILED`.
+- Row outcomes are counted as `ACCEPTED`, `DUPLICATE`, `REJECTED`, or `FAILED`.
 - Unsupported template version fails before domain writes.
 - Valid rows may be accepted while invalid rows are rejected visibly.
+- Rejected and failed rows carry row number, optional field, stable error code, and user-safe reason.
 
 ### Source Record
 

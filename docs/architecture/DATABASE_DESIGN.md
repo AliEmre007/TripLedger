@@ -136,10 +136,20 @@ Unique:
 | received_by_user_id | uuid | not null |
 | received_at | timestamptz | not null |
 | completed_at | timestamptz | nullable |
+| failure_code | text | nullable |
+| failure_reason | text | nullable |
+| total_count | integer | not null default 0 |
 | accepted_count | integer | not null default 0 |
 | duplicate_count | integer | not null default 0 |
 | rejected_count | integer | not null default 0 |
-| warning_count | integer | not null default 0 |
+| failed_count | integer | not null default 0 |
+
+Checks:
+
+- `status in ('RECEIVED', 'COMPLETED', 'FAILED')`
+- counts are non-negative and sum to `total_count`
+- terminal batches have `completed_at`
+- failed batches have `failure_code` and `failure_reason`
 
 ### import_row_result
 
@@ -149,15 +159,22 @@ Unique:
 | organisation_id | uuid | not null |
 | import_batch_id | uuid | not null |
 | row_number | integer | not null |
-| result | text | not null |
+| outcome | text | not null |
 | field_name | text | nullable |
 | error_code | text | nullable |
 | reason | text | nullable |
 | source_record_id | uuid | nullable |
+| recorded_at | timestamptz | not null |
 
 Unique:
 
 - `(organisation_id, import_batch_id, row_number)`
+
+Checks:
+
+- `outcome in ('ACCEPTED', 'DUPLICATE', 'REJECTED', 'FAILED')`
+- `row_number > 0`
+- rejected and failed rows have `error_code` and `reason`
 
 ### source_record
 

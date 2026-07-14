@@ -121,6 +121,118 @@ Roles:
 - Operations.
 - Read-only Manager.
 
+### `POST /api/v1/import-batches`
+
+Starts an import batch for a source system inside the actor organisation.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+
+Request:
+
+```json
+{
+  "sourceSystemId": "uuid",
+  "templateType": "BOOKING_CSV",
+  "templateVersion": "v1",
+  "fileName": "bookings.csv",
+  "fileChecksum": "sha256:abc"
+}
+```
+
+Rules:
+
+- `sourceSystemId` must belong to the actor organisation.
+- Inactive source systems cannot receive new imports.
+- The batch starts in `RECEIVED` status with zero row counts.
+
+Errors:
+
+- `SOURCE_SYSTEM_NOT_FOUND`
+- `INACTIVE_SOURCE_SYSTEM`
+- `INVALID_REQUEST`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
+### `GET /api/v1/import-batches`
+
+Lists import batches inside the actor organisation, newest first.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
+### `GET /api/v1/import-batches/{batchId}`
+
+Returns one import batch inside the actor organisation.
+
+Errors:
+
+- `IMPORT_BATCH_NOT_FOUND`
+
+### `POST /api/v1/import-batches/{batchId}/row-results`
+
+Records a visible outcome for one imported row.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+
+Request:
+
+```json
+{
+  "rowNumber": 3,
+  "outcome": "REJECTED",
+  "fieldName": "sellingAmount",
+  "errorCode": "INVALID_AMOUNT",
+  "reason": "Amount is required.",
+  "sourceRecordId": null
+}
+```
+
+Rules:
+
+- `outcome` is one of `ACCEPTED`, `DUPLICATE`, `REJECTED`, or `FAILED`.
+- `rowNumber` is unique inside the batch.
+- `REJECTED` and `FAILED` rows require `errorCode` and `reason`.
+- Terminal batches cannot receive new row results.
+
+Errors:
+
+- `IMPORT_BATCH_NOT_FOUND`
+- `DUPLICATE_IMPORT_ROW_RESULT`
+- `IMPORT_BATCH_TERMINAL`
+- `INVALID_REQUEST`
+
+### `GET /api/v1/import-batches/{batchId}/row-results`
+
+Lists row results for a batch inside the actor organisation, ordered by row number.
+
+### `POST /api/v1/import-batches/{batchId}/complete`
+
+Marks an open import batch as `COMPLETED`.
+
+### `POST /api/v1/import-batches/{batchId}/fail`
+
+Marks an open import batch as `FAILED`.
+
+Request:
+
+```json
+{
+  "errorCode": "UNSUPPORTED_TEMPLATE_VERSION",
+  "reason": "Template version v9 is not supported."
+}
+```
+
 ### Actuator
 
 - `GET /actuator/health`

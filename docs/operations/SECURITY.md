@@ -53,6 +53,8 @@ Role and MFA decisions are centralised through named permissions. Finance-only o
 
 Source-system creation uses `SOURCE_SYSTEM_MANAGE` and is Administrator-only. Source-system listing uses `PROTECTED_READ` and is filtered by the actor organisation.
 
+Import-batch creation, row-result recording, completion, and failure marking use `OPERATIONAL_WRITE`. Import-batch reads use `PROTECTED_READ`. Every import-batch and row-result query is filtered by the actor organisation, and inactive source systems cannot receive new import batches.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

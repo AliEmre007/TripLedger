@@ -621,6 +621,11 @@ Every generated export has a version, filter definition, row count, checksum, ac
 | `UNAUTHORISED_FINANCIAL_ACTION` | Role lacks authority | Reject and audit |
 | `MFA_REQUIRED` | MFA claim is missing for MFA-protected financial function | Reject and audit |
 | `UNSUPPORTED_TEMPLATE_VERSION` | Import template unknown | Fail batch before writes |
+| `SOURCE_SYSTEM_NOT_FOUND` | Import references missing or cross-organisation source system | Reject without revealing other organisations |
+| `INACTIVE_SOURCE_SYSTEM` | Import targets inactive source system | Reject batch creation |
+| `IMPORT_BATCH_NOT_FOUND` | Import batch is missing or outside actor organisation | Reject without revealing other organisations |
+| `DUPLICATE_IMPORT_ROW_RESULT` | Row result already exists for the batch row number | Reject duplicate row outcome |
+| `IMPORT_BATCH_TERMINAL` | Completed or failed batch is changed | Reject mutation |
 | `IMPORT_LIMIT_EXCEEDED` | File size or row limit exceeded | Reject file |
 | `MISSING_REQUIRED_COLUMN` | Required CSV column absent | Fail validation |
 | `INVALID_FIELD_TYPE` | Field cannot be parsed | Reject row |

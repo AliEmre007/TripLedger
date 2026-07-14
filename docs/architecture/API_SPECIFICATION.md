@@ -111,88 +111,127 @@ Lists organisation source systems.
 
 Roles: Administrator, Finance, Operations, Read-only Manager.
 
-## 6. Imports
+## 6. Import Batches
 
-### `POST /imports`
+### `POST /import-batches`
 
-Creates an import batch and uploads a CSV file.
+Starts an import batch for a registered source system. CSV upload and parsing are added by the specific importer slices.
 
-Roles:
+Roles: Administrator, Finance, Operations.
 
-- Booking import: Administrator, Finance, Operations.
-- Supplier obligation import: Administrator, Finance, Operations.
-- Financial event import: Administrator, Finance.
-
-Content type: `multipart/form-data`
-
-Fields:
-
-- `sourceSystemId`
-- `templateType`: `BOOKINGS`, `SUPPLIER_OBLIGATIONS`, `FINANCIAL_EVENTS`
-- `templateVersion`
-- `file`
-
-Response:
+Request:
 
 ```json
 {
-  "importBatchId": "uuid",
-  "status": "PROCESSING",
-  "correlationId": "01JZ..."
+  "sourceSystemId": "uuid",
+  "templateType": "BOOKING_CSV",
+  "templateVersion": "v1",
+  "fileName": "bookings.csv",
+  "fileChecksum": "sha256:abc"
 }
 ```
-
-Errors:
-
-- `UNSUPPORTED_TEMPLATE_VERSION`
-- `IMPORT_LIMIT_EXCEEDED`
-- `MISSING_REQUIRED_COLUMN`
-- `EXPORT_SCOPE_FORBIDDEN` for unauthorised financial import scope.
-
-### `GET /imports/{importBatchId}`
-
-Returns import status and counts.
-
-Roles: users allowed to view the import type.
 
 Response:
 
 ```json
 {
   "id": "uuid",
+  "organisationId": "uuid",
   "sourceSystemId": "uuid",
-  "templateType": "BOOKINGS",
-  "templateVersion": "bookings-v1",
-  "status": "COMPLETED_WITH_ERRORS",
-  "counts": {
-    "accepted": 8,
-    "duplicate": 0,
-    "rejected": 2,
-    "warning": 0
-  }
+  "templateType": "BOOKING_CSV",
+  "templateVersion": "v1",
+  "status": "RECEIVED",
+  "fileName": "bookings.csv",
+  "fileChecksum": "sha256:abc",
+  "receivedByUserId": "uuid",
+  "receivedAt": "2026-07-14T06:00:00Z",
+  "completedAt": null,
+  "failureCode": null,
+  "failureReason": null,
+  "totalCount": 0,
+  "acceptedCount": 0,
+  "duplicateCount": 0,
+  "rejectedCount": 0,
+  "failedCount": 0
 }
 ```
 
-### `GET /imports/{importBatchId}/rows`
+Errors:
 
-Returns row-level results with pagination.
+- `SOURCE_SYSTEM_NOT_FOUND`
+- `INACTIVE_SOURCE_SYSTEM`
+- `INVALID_REQUEST`
+- `UNAUTHORISED_FINANCIAL_ACTION`
 
-Query:
+### `GET /import-batches`
 
-- `result`
-- `page`
-- `size`
+Lists import batches inside the actor organisation, newest first.
 
-### `GET /imports/{importBatchId}/rejected-rows.csv`
+Roles: Administrator, Finance, Operations, Read-only Manager.
 
-Downloads rejected rows and error metadata.
+### `GET /import-batches/{importBatchId}`
 
-Roles: users allowed to view the import type.
+Returns import batch status and counts.
 
-Controls:
+Roles: Administrator, Finance, Operations, Read-only Manager.
 
-- No secrets or hidden system values.
-- Spreadsheet formula-leading cells are neutralised.
+Errors:
+
+- `IMPORT_BATCH_NOT_FOUND`
+
+### `POST /import-batches/{importBatchId}/row-results`
+
+Records one row outcome for an open batch.
+
+Roles: Administrator, Finance, Operations.
+
+Request:
+
+```json
+{
+  "rowNumber": 3,
+  "outcome": "REJECTED",
+  "fieldName": "sellingAmount",
+  "errorCode": "INVALID_AMOUNT",
+  "reason": "Amount is required.",
+  "sourceRecordId": null
+}
+```
+
+Rules:
+
+- `outcome` is one of `ACCEPTED`, `DUPLICATE`, `REJECTED`, or `FAILED`.
+- `rowNumber` is unique per batch.
+- `REJECTED` and `FAILED` rows require `errorCode` and `reason`.
+- Terminal batches cannot be changed.
+
+Errors:
+
+- `IMPORT_BATCH_NOT_FOUND`
+- `DUPLICATE_IMPORT_ROW_RESULT`
+- `IMPORT_BATCH_TERMINAL`
+- `INVALID_REQUEST`
+
+### `GET /import-batches/{importBatchId}/row-results`
+
+Returns row-level results ordered by row number.
+
+### `POST /import-batches/{importBatchId}/complete`
+
+Marks an open batch as `COMPLETED`.
+
+### `POST /import-batches/{importBatchId}/fail`
+
+Marks an open batch as `FAILED`.
+
+Request:
+
+```json
+{
+  "errorCode": "UNSUPPORTED_TEMPLATE_VERSION",
+  "reason": "Template version v9 is not supported."
+}
+```
 
 ## 7. Bookings
 
