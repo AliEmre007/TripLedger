@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SourceRecordRepository extends JpaRepository<SourceRecord, UUID> {
 
+    Optional<SourceRecord> findByOrganisationIdAndId(UUID organisationId, UUID id);
+
     Optional<SourceRecord> findByOrganisationIdAndSourceSystemIdAndRecordTypeAndExternalRecordIdAndSourceVersion(
             UUID organisationId,
             UUID sourceSystemId,

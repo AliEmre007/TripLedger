@@ -184,6 +184,7 @@ Rules:
 - Newer source versions update the current canonical booking.
 - Unchanged re-imports are counted as duplicates and do not create duplicate bookings or items.
 - Older source versions are rejected as stale and do not overwrite the current booking.
+- Booking detail reads expose the current source-record provenance and booking items inside the same organisation.
 - Cancellation changes state and creates financial expectations; it does not delete history.
 
 ### Booking Item

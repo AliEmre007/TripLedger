@@ -306,9 +306,78 @@ Roles: Administrator, Finance, Operations, Read-only Manager.
 
 ### `GET /bookings/{bookingId}`
 
-Returns canonical booking detail, items, provenance, current economics, reconciliation status, and active discrepancies.
+Returns canonical booking detail, booking items, and source provenance. Economics,
+reconciliation status, and active discrepancies are added by later slices.
 
 Roles: Administrator, Finance, Operations, Read-only Manager.
+
+Response:
+
+```json
+{
+  "id": "uuid",
+  "organisationId": "uuid",
+  "sourceSystemId": "uuid",
+  "externalBookingId": "TL-BKG-1001",
+  "bookingDate": "2026-07-01",
+  "serviceStartDate": "2026-08-01",
+  "serviceEndDate": "2026-08-07",
+  "lifecycleStatus": "CONFIRMED",
+  "contractedSellingAmount": 1000.00,
+  "sellingCurrency": "EUR",
+  "customerReference": "CUST-1001",
+  "currentSourceRecord": {
+    "id": "uuid",
+    "sourceSystemId": "uuid",
+    "importBatchId": "uuid",
+    "recordType": "BOOKING",
+    "externalRecordId": "TL-BKG-1001",
+    "sourceVersion": "1",
+    "sourceRowNumber": 2,
+    "contentChecksum": "sha256:abc",
+    "payloadReference": null,
+    "acceptedAt": "2026-07-14T06:00:00Z"
+  },
+  "items": [
+    {
+      "id": "uuid",
+      "itemExternalId": "ITEM-1",
+      "serviceType": "HOTEL",
+      "serviceStartDate": "2026-08-01",
+      "serviceEndDate": "2026-08-07",
+      "sellingAmount": 1000.00,
+      "sellingCurrency": "EUR",
+      "state": "ACTIVE",
+      "sourceRecord": {
+        "id": "uuid",
+        "sourceSystemId": "uuid",
+        "importBatchId": "uuid",
+        "recordType": "BOOKING",
+        "externalRecordId": "TL-BKG-1001",
+        "sourceVersion": "1",
+        "sourceRowNumber": 2,
+        "contentChecksum": "sha256:abc",
+        "payloadReference": null,
+        "acceptedAt": "2026-07-14T06:00:00Z"
+      }
+    }
+  ],
+  "createdAt": "2026-07-14T06:00:00Z",
+  "updatedAt": "2026-07-14T06:00:00Z"
+}
+```
+
+Rules:
+
+- Lookup is scoped to the actor organisation.
+- Cross-organisation access returns `BOOKING_NOT_FOUND` without confirming target existence.
+- Provenance includes source identity, import batch id, row number, source version, and content checksum.
+- Raw source payload content is not returned.
+
+Errors:
+
+- `BOOKING_NOT_FOUND`
+- `UNAUTHORISED_FINANCIAL_ACTION`
 
 ### `PATCH /bookings/{bookingId}/operational-fields`
 

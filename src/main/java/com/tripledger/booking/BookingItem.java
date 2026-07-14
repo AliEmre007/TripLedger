@@ -109,7 +109,31 @@ public class BookingItem {
         return itemExternalId;
     }
 
+    public UUID sourceRecordId() {
+        return sourceRecordId;
+    }
+
+    public BookingItemServiceType serviceType() {
+        return serviceType;
+    }
+
+    public LocalDate serviceStartDate() {
+        return serviceStartDate;
+    }
+
+    public LocalDate serviceEndDate() {
+        return serviceEndDate;
+    }
+
     public BigDecimal sellingAmount() {
         return sellingAmount;
+    }
+
+    public String sellingCurrency() {
+        return sellingCurrency;
+    }
+
+    public BookingItemState state() {
+        return state;
     }
 }

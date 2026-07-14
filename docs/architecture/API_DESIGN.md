@@ -258,6 +258,79 @@ Rules:
 
 - Supported booking template is `BOOKING` version `1`.
 - Valid rows create or update one canonical booking and one booking item.
+- Duplicate unchanged source identities are counted as `DUPLICATE`.
+- Older source versions are rejected as `STALE_SOURCE_VERSION`.
+- Mixed accepted and rejected rows finish as `COMPLETED_WITH_ERRORS`.
+
+### `GET /api/v1/bookings/{bookingId}`
+
+Returns canonical booking detail for one booking inside the actor organisation.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
+Example response:
+
+```json
+{
+  "id": "uuid",
+  "organisationId": "uuid",
+  "sourceSystemId": "uuid",
+  "externalBookingId": "TL-BKG-1001",
+  "bookingDate": "2026-07-01",
+  "serviceStartDate": "2026-08-01",
+  "serviceEndDate": "2026-08-07",
+  "lifecycleStatus": "CONFIRMED",
+  "contractedSellingAmount": 1000.00,
+  "sellingCurrency": "EUR",
+  "customerReference": "CUST-1001",
+  "currentSourceRecord": {
+    "id": "uuid",
+    "sourceSystemId": "uuid",
+    "importBatchId": "uuid",
+    "recordType": "BOOKING",
+    "externalRecordId": "TL-BKG-1001",
+    "sourceVersion": "1",
+    "sourceRowNumber": 2,
+    "contentChecksum": "sha256:abc",
+    "payloadReference": null,
+    "acceptedAt": "2026-07-14T06:00:00Z"
+  },
+  "items": [
+    {
+      "id": "uuid",
+      "itemExternalId": "ITEM-1",
+      "serviceType": "HOTEL",
+      "serviceStartDate": "2026-08-01",
+      "serviceEndDate": "2026-08-07",
+      "sellingAmount": 1000.00,
+      "sellingCurrency": "EUR",
+      "state": "ACTIVE",
+      "sourceRecord": {
+        "id": "uuid",
+        "sourceVersion": "1"
+      }
+    }
+  ],
+  "createdAt": "2026-07-14T06:00:00Z",
+  "updatedAt": "2026-07-14T06:00:00Z"
+}
+```
+
+Rules:
+
+- The booking lookup is filtered by the actor organisation.
+- Missing bookings and cross-organisation bookings return `BOOKING_NOT_FOUND`.
+- The response includes source identity and checksum provenance, not raw CSV content.
+
+Errors:
+
+- `BOOKING_NOT_FOUND`
+- `UNAUTHORISED_FINANCIAL_ACTION`
 - Source identity is `organisation + source system + BOOKING + external booking id + source version`.
 - Unchanged source identities are counted as duplicates and do not create duplicate bookings or items.
 - Older source versions are rejected with `STALE_SOURCE_VERSION` and do not overwrite the current booking.

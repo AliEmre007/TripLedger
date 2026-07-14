@@ -108,6 +108,10 @@ public class SourceRecord {
         return contentChecksum;
     }
 
+    public String payloadReference() {
+        return payloadReference;
+    }
+
     public Instant acceptedAt() {
         return acceptedAt;
     }

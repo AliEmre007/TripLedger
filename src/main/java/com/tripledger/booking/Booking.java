@@ -153,4 +153,16 @@ public class Booking {
     public BigDecimal contractedSellingAmount() {
         return contractedSellingAmount;
     }
+
+    public String customerReference() {
+        return customerReference;
+    }
+
+    public Instant createdAt() {
+        return createdAt;
+    }
+
+    public Instant updatedAt() {
+        return updatedAt;
+    }
 }
