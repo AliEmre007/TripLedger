@@ -4,14 +4,13 @@ import com.tripledger.authorization.AuthorizationService;
 import com.tripledger.authorization.Permission;
 import com.tripledger.common.api.ApiErrorResponse;
 import com.tripledger.common.api.ApiException;
+import com.tripledger.common.money.MoneyPolicy;
+import com.tripledger.common.money.MoneyValidationException;
 import com.tripledger.identity.ActorContext;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,8 +19,6 @@ import org.springframework.util.StringUtils;
 
 @Service
 public class FinancialEventReversalService {
-
-    private static final Set<String> SUPPORTED_CURRENCIES = Set.of("EUR", "GBP", "TRY", "USD");
 
     private final FinancialEventRepository financialEventRepository;
     private final AuthorizationService authorizationService;
@@ -90,7 +87,7 @@ public class FinancialEventReversalService {
                     original.bookingId(),
                     replacementCommand.eventType(),
                     directionFor(replacementCommand.eventType()),
-                    money(replacementCommand.amount()),
+                    replacementAmount(replacementCommand),
                     currency(replacementCommand.currency()),
                     replacementCommand.effectiveAt(),
                     normalizeNullable(replacementCommand.externalReference()),
@@ -131,46 +128,36 @@ public class FinancialEventReversalService {
         if (command.amount() == null) {
             throw invalidField("replacementEvent.amount", "Replacement amount is required.");
         }
-        money(command.amount());
         currency(command.currency());
+        replacementAmount(command);
         if (command.effectiveAt() == null) {
             throw invalidField("replacementEvent.effectiveAt", "Replacement effective timestamp is required.");
         }
     }
 
-    private BigDecimal money(BigDecimal amount) {
-        if (amount.signum() <= 0) {
-            throw invalidField("replacementEvent.amount", "Amount must be positive.");
+    private String currency(String currency) {
+        try {
+            return MoneyPolicy.currency(currency);
+        } catch (MoneyValidationException exception) {
+            throw moneyException("replacementEvent.currency", exception);
         }
-        if (amount.stripTrailingZeros().scale() > 2) {
-            throw new ApiException(
-                    HttpStatus.BAD_REQUEST,
-                    "INVALID_CURRENCY_PRECISION",
-                    "Currency amount has too many fractional digits.",
-                    List.of(new ApiErrorResponse.ApiErrorDetail(
-                            "replacementEvent.amount",
-                            "Currency amount has too many fractional digits."))
-            );
-        }
-        return amount.setScale(2, RoundingMode.UNNECESSARY);
     }
 
-    private String currency(String currency) {
-        if (!StringUtils.hasText(currency)) {
-            throw invalidField("replacementEvent.currency", "Currency is required.");
+    private BigDecimal replacementAmount(ReplacementFinancialEventCommand command) {
+        try {
+            return MoneyPolicy.positiveAmount(command.amount(), command.currency());
+        } catch (MoneyValidationException exception) {
+            throw moneyException("replacementEvent.amount", exception);
         }
-        String normalized = currency.trim().toUpperCase(Locale.ROOT);
-        if (!normalized.matches("[A-Z]{3}") || !SUPPORTED_CURRENCIES.contains(normalized)) {
-            throw new ApiException(
-                    HttpStatus.BAD_REQUEST,
-                    "INVALID_CURRENCY",
-                    "Currency is not supported.",
-                    List.of(new ApiErrorResponse.ApiErrorDetail(
-                            "replacementEvent.currency",
-                            "Currency is not supported."))
-            );
-        }
-        return normalized;
+    }
+
+    private ApiException moneyException(String field, MoneyValidationException exception) {
+        return new ApiException(
+                HttpStatus.BAD_REQUEST,
+                exception.code(),
+                exception.reason(),
+                List.of(new ApiErrorResponse.ApiErrorDetail(field, exception.reason()))
+        );
     }
 
     private FinancialEventDirection directionFor(FinancialEventType eventType) {

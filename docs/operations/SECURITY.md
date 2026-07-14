@@ -65,6 +65,8 @@ Financial-event CSV imports require `FINANCIAL_ACTION_WITH_MFA`. Accepted rows c
 
 Financial-event reversals require `FINANCIAL_ACTION_WITH_MFA`. The correction path creates new organisation-scoped events and never updates or deletes the original accepted event. A user-safe reason is required and returned as reversal evidence.
 
+Money and currency validation is centralised in the application money policy and backed by database currency and minor-unit checks. Invalid precision and unsupported currencies are rejected before domain writes, and binary floating-point values are not used for persisted financial amounts.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

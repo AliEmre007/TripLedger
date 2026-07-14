@@ -563,6 +563,19 @@ Common framework-level error codes:
 - `NOT_FOUND`: endpoint was not found.
 - `INTERNAL_ERROR`: unexpected server failure with a safe user message.
 
+## Current Money Policy
+
+Validation-release money handling is centralised in the application money policy.
+
+Rules:
+
+- Persisted and returned financial amounts use exact decimal values, not binary floating point.
+- Supported validation-release currencies are `EUR`, `GBP`, `TRY`, and `USD`.
+- Supported currencies currently allow two fractional digits.
+- Amount precision failures return `INVALID_CURRENCY_PRECISION`.
+- Unsupported currencies return `INVALID_CURRENCY`.
+- Negative imported amounts are rejected unless a later explicit correction path supports the event contract.
+
 ## Future API Rules
 
 - Use `/api/v1`.

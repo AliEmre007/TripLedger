@@ -6,6 +6,8 @@ import com.tripledger.booking.Booking;
 import com.tripledger.booking.BookingRepository;
 import com.tripledger.common.api.ApiErrorResponse;
 import com.tripledger.common.api.ApiException;
+import com.tripledger.common.money.MoneyPolicy;
+import com.tripledger.common.money.MoneyValidationException;
 import com.tripledger.identity.ActorContext;
 import com.tripledger.ingestion.ImportBatch;
 import com.tripledger.ingestion.ImportBatchService;
@@ -13,7 +15,6 @@ import com.tripledger.ingestion.ImportRowOutcome;
 import com.tripledger.ingestion.SourceRecord;
 import com.tripledger.ingestion.SourceRecordRepository;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,6 @@ public class FinancialEventCsvImportService {
 
     private static final String SUPPORTED_TEMPLATE_TYPE = "FINANCIAL_EVENT";
     private static final String SUPPORTED_TEMPLATE_VERSION = "1";
-    private static final Set<String> SUPPORTED_CURRENCIES = Set.of("EUR", "GBP", "TRY", "USD");
     private static final List<String> REQUIRED_HEADERS = List.of(
             "template_type",
             "template_version",
@@ -248,8 +247,8 @@ public class FinancialEventCsvImportService {
                 "INVALID_FIELD_TYPE"
         );
         Instant effectiveAt = instant(row, "effective_at");
-        BigDecimal amount = positiveMoney(row, "amount");
         String currency = currency(row, "currency");
+        BigDecimal amount = positiveMoney(row, "amount", currency);
         String externalCustomerReference = nullable(row.value("external_customer_reference"));
         String provenanceNote = nullable(row.value("provenance_note"));
         rejectProhibitedPaymentData(provenanceNote);
@@ -277,28 +276,21 @@ public class FinancialEventCsvImportService {
         }
     }
 
-    private BigDecimal positiveMoney(CsvRow row, String field) {
+    private BigDecimal positiveMoney(CsvRow row, String field, String currency) {
         String value = required(row, field);
         try {
-            BigDecimal amount = new BigDecimal(value);
-            if (amount.signum() <= 0) {
-                throw rejected(field, "INVALID_FIELD_TYPE", "Amount must be positive.");
-            }
-            if (amount.stripTrailingZeros().scale() > 2) {
-                throw rejected(field, "INVALID_CURRENCY_PRECISION", "Currency amount has too many fractional digits.");
-            }
-            return amount.setScale(2, RoundingMode.UNNECESSARY);
-        } catch (ArithmeticException | NumberFormatException exception) {
-            throw rejected(field, "INVALID_FIELD_TYPE", "Amount must be a decimal number.");
+            return MoneyPolicy.positiveAmount(value, currency);
+        } catch (MoneyValidationException exception) {
+            throw rejected(field, exception.code(), exception.reason());
         }
     }
 
     private String currency(CsvRow row, String field) {
-        String value = required(row, field).toUpperCase(Locale.ROOT);
-        if (!value.matches("[A-Z]{3}") || !SUPPORTED_CURRENCIES.contains(value)) {
-            throw rejected(field, "INVALID_CURRENCY", "Currency is not supported.");
+        try {
+            return MoneyPolicy.currency(required(row, field));
+        } catch (MoneyValidationException exception) {
+            throw rejected(field, exception.code(), exception.reason());
         }
-        return value;
     }
 
     private <E extends Enum<E>> E enumValue(Class<E> enumType, CsvRow row, String field, String code) {

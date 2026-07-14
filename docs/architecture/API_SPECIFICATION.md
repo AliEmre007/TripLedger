@@ -60,6 +60,14 @@ Common API-specific validation codes:
 - `NOT_FOUND`: endpoint was not found.
 - `INTERNAL_ERROR`: unexpected server failure with a safe user message.
 
+Validation-release money policy:
+
+- Supported currencies are `EUR`, `GBP`, `TRY`, and `USD`.
+- Supported currencies use two fractional digits.
+- Unsupported currency values return `INVALID_CURRENCY`.
+- Too many fractional digits return `INVALID_CURRENCY_PRECISION`.
+- Imported booking, supplier-obligation, and financial-event amounts are exact decimals.
+
 ## 4. Authentication and User Context
 
 ### `GET /me`

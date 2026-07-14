@@ -47,6 +47,18 @@ Core domain question:
 
 ## 4. Entity Catalogue
 
+### Money
+
+Money is represented as exact decimal amount plus supported currency.
+
+Validation-release rules:
+
+- supported currencies are `EUR`, `GBP`, `TRY`, and `USD`;
+- supported currencies allow two fractional digits;
+- binary floating-point values are not used for persisted financial amounts;
+- unsupported currencies and invalid precision are rejected before domain writes;
+- database constraints also enforce the supported currency set and two-decimal precision on money-bearing tables.
+
 ### Organisation
 
 The tenant and ownership boundary.

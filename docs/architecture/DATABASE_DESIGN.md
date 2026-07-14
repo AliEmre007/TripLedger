@@ -224,6 +224,8 @@ Checks:
 - `service_end_date >= service_start_date` when both exist.
 - `lifecycle_status in ('DRAFT', 'CONFIRMED', 'IN_SERVICE', 'COMPLETED', 'CANCELLED')`
 - `contracted_selling_amount >= 0`
+- `contracted_selling_amount = round(contracted_selling_amount, 2)`
+- `selling_currency in ('EUR', 'GBP', 'TRY', 'USD')`
 
 ### booking_item
 
@@ -249,6 +251,8 @@ Checks:
 - `service_type in ('HOTEL', 'TOUR', 'TRANSFER', 'OTHER')`
 - `state in ('ACTIVE')`
 - `selling_amount >= 0`
+- `selling_amount = round(selling_amount, 2)`
+- `selling_currency in ('EUR', 'GBP', 'TRY', 'USD')`
 
 Unique:
 
@@ -288,12 +292,13 @@ Unique:
 Checks:
 
 - `amount > 0`
+- `amount = round(amount, 2)`
+- `currency in ('EUR', 'GBP', 'TRY', 'USD')`
 - booking and booking item references, when present, must belong to same organisation.
 
 Unique:
 
 - `(organisation_id, source_record_id)` where `source_record_id is not null`
-- `(organisation_id, reverses_event_id)` where `reverses_event_id is not null`
 
 ### financial_event
 
@@ -317,10 +322,13 @@ Unique:
 Unique:
 
 - `(organisation_id, source_record_id)` where `source_record_id is not null`
+- `(organisation_id, reverses_event_id)` where `reverses_event_id is not null`
 
 Checks:
 
 - `amount > 0` for canonical stored amount; direction/event type controls effect.
+- `amount = round(amount, 2)`
+- `currency in ('EUR', 'GBP', 'TRY', 'USD')`
 - `adjustment_reason is not null` for manual adjustments.
 
 Immutability:
@@ -328,6 +336,7 @@ Immutability:
 - Application does not expose update/delete.
 - `V7__financial_event_import.sql` adds database triggers that reject update and delete operations on accepted financial events.
 - `V8__financial_event_reversal_path.sql` adds reversal type support and prevents multiple reversals for one original event.
+- `V9__money_currency_precision.sql` adds database checks for the validation-release supported currency set and two-decimal minor-unit precision.
 
 ### exchange_rate
 
