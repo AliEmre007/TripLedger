@@ -619,6 +619,7 @@ Every generated export has a version, filter definition, row count, checksum, ac
 |---|---|---|
 | `ORG_REFERENCE_MISMATCH` | Cross-organisation reference | Reject and security-log |
 | `UNAUTHORISED_FINANCIAL_ACTION` | Role lacks authority | Reject and audit |
+| `MFA_REQUIRED` | MFA claim is missing for MFA-protected financial function | Reject and audit |
 | `UNSUPPORTED_TEMPLATE_VERSION` | Import template unknown | Fail batch before writes |
 | `IMPORT_LIMIT_EXCEEDED` | File size or row limit exceeded | Reject file |
 | `MISSING_REQUIRED_COLUMN` | Required CSV column absent | Fail validation |

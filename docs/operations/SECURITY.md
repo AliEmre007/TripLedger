@@ -49,6 +49,8 @@ Until OIDC is integrated, protected local requests use:
 
 Every protected request must enforce role and organisation ownership on the server.
 
+Role and MFA decisions are centralised through named permissions. Finance-only operations must require `FINANCIAL_ACTION` or `FINANCIAL_ACTION_WITH_MFA`; direct role checks in controllers should be avoided so future OIDC integration does not duplicate policy logic.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

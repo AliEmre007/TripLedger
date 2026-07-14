@@ -54,6 +54,23 @@ Errors:
 - `ORG_REFERENCE_MISMATCH`
 - `INVALID_REQUEST`
 
+## Current Authorisation Boundary
+
+Protected application services use named permissions rather than ad hoc role checks.
+
+Current permissions:
+
+- `PROTECTED_READ`: Administrator, Finance, Operations, Read-only Manager.
+- `SOURCE_SYSTEM_MANAGE`: Administrator.
+- `OPERATIONAL_WRITE`: Administrator, Finance, Operations.
+- `FINANCIAL_ACTION`: Administrator, Finance.
+- `FINANCIAL_ACTION_WITH_MFA`: Administrator or Finance with MFA satisfied.
+
+Stable denial codes:
+
+- `UNAUTHORISED_FINANCIAL_ACTION` when the actor role is not permitted.
+- `MFA_REQUIRED` when the role is permitted but MFA is not satisfied.
+
 ### Actuator
 
 - `GET /actuator/health`
