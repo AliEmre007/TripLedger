@@ -71,6 +71,49 @@ Stable denial codes:
 - `UNAUTHORISED_FINANCIAL_ACTION` when the actor role is not permitted.
 - `MFA_REQUIRED` when the role is permitted but MFA is not satisfied.
 
+### `POST /api/v1/source-systems`
+
+Creates a source system inside the actor organisation.
+
+Roles:
+
+- Administrator.
+
+Request:
+
+```json
+{
+  "name": "OTA Export",
+  "category": "BOOKING_CHANNEL",
+  "externalCode": "OTA_EXPORT",
+  "timeZone": "Europe/Istanbul",
+  "active": true
+}
+```
+
+Rules:
+
+- `externalCode` is normalised to uppercase.
+- `externalCode` must be unique inside the actor organisation.
+- `timeZone` must be a valid IANA time zone.
+
+Errors:
+
+- `DUPLICATE_SOURCE_CODE`
+- `INVALID_REQUEST`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
+### `GET /api/v1/source-systems`
+
+Lists source systems inside the actor organisation.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
 ### Actuator
 
 - `GET /actuator/health`
