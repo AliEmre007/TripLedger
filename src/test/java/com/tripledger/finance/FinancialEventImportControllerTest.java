@@ -53,6 +53,9 @@ class FinancialEventImportControllerTest {
     @MockitoBean
     private FinancialEventQueryService financialEventQueryService;
 
+    @MockitoBean
+    private FinancialEventReversalService financialEventReversalService;
+
     @Test
     void importsFinancialEventCsv() throws Exception {
         when(actorContextResolver.resolve(any())).thenReturn(actor());
@@ -114,6 +117,30 @@ class FinancialEventImportControllerTest {
                 .andExpect(jsonPath("$.error.correlationId").isNotEmpty());
     }
 
+    @Test
+    void reversesFinancialEvent() throws Exception {
+        when(actorContextResolver.resolve(any())).thenReturn(actor());
+        when(financialEventReversalService.reverse(any(), any(), any()))
+                .thenReturn(new FinancialEventReversalService.FinancialEventReversalResult(
+                        reversalDetail(),
+                        null
+                ));
+
+        mockMvc.perform(post("/api/v1/financial-events/{eventId}/reversal", EVENT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "reason": "Gateway corrected duplicate payment.",
+                                  "effectiveAt": "2026-07-15T09:00:00Z"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("X-Correlation-Id", not(blankOrNullString())))
+                .andExpect(jsonPath("$.reversal.eventType").value("REVERSAL"))
+                .andExpect(jsonPath("$.reversal.reversesEventId").value(EVENT_ID.toString()))
+                .andExpect(jsonPath("$.replacementEvent").doesNotExist());
+    }
+
     private ImportBatch completedBatch() {
         ImportBatch batch = new ImportBatch(
                 BATCH_ID,
@@ -159,6 +186,26 @@ class FinancialEventImportControllerTest {
                 null,
                 false,
                 sourceRecord,
+                USER_ID,
+                NOW
+        );
+    }
+
+    private FinancialEventDetail reversalDetail() {
+        return new FinancialEventDetail(
+                UUID.fromString("77777777-7777-7777-7777-777777777777"),
+                ORGANISATION_ID,
+                null,
+                FinancialEventType.REVERSAL,
+                FinancialEventDirection.REVERSAL,
+                new BigDecimal("120.00"),
+                "EUR",
+                Instant.parse("2026-07-15T09:00:00Z"),
+                "REVERSAL-" + EVENT_ID,
+                EVENT_ID,
+                "Gateway corrected duplicate payment.",
+                false,
+                null,
                 USER_ID,
                 NOW
         );

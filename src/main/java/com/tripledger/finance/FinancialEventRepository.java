@@ -7,7 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FinancialEventRepository extends JpaRepository<FinancialEvent, UUID> {
 
+    Optional<FinancialEvent> findByOrganisationIdAndId(UUID organisationId, UUID id);
+
     Optional<FinancialEvent> findByOrganisationIdAndSourceRecordId(UUID organisationId, UUID sourceRecordId);
+
+    boolean existsByOrganisationIdAndReversesEventId(UUID organisationId, UUID reversesEventId);
 
     List<FinancialEvent> findAllByOrganisationIdOrderByEffectiveAtDesc(UUID organisationId);
 

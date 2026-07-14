@@ -293,6 +293,7 @@ Checks:
 Unique:
 
 - `(organisation_id, source_record_id)` where `source_record_id is not null`
+- `(organisation_id, reverses_event_id)` where `reverses_event_id is not null`
 
 ### financial_event
 
@@ -326,6 +327,7 @@ Immutability:
 
 - Application does not expose update/delete.
 - `V7__financial_event_import.sql` adds database triggers that reject update and delete operations on accepted financial events.
+- `V8__financial_event_reversal_path.sql` adds reversal type support and prevents multiple reversals for one original event.
 
 ### exchange_rate
 

@@ -287,6 +287,8 @@ Rules:
 - Manual adjustments require reason and authority.
 - Imported events preserve source-record provenance and duplicate source identities do not create duplicate financial effect.
 - Events without a known booking link remain unmatched and are excluded from booking reconciliation until allocation.
+- Corrections create a separate reversal event and optional replacement event; the original event remains unchanged.
+- Only one reversal may exist for a given original event.
 - Corrections use reversal/replacement or controlled adjustment.
 - Event direction comes from event type, not user interpretation.
 - Raw card data and unrestricted bank credentials are prohibited.

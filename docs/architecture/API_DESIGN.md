@@ -482,6 +482,51 @@ Rules:
 - Responses include event type, direction, amount, currency, effective timestamp, source-record provenance, and booking link state.
 - Raw source payload content and prohibited payment data are not returned.
 
+### `POST /api/v1/financial-events/{eventId}/reversal`
+
+Creates a full reversal for an accepted financial event and optionally creates a replacement event.
+
+Roles:
+
+- Administrator with MFA.
+- Finance with MFA.
+
+Request:
+
+```json
+{
+  "reason": "Gateway corrected duplicate payment.",
+  "effectiveAt": "2026-07-15T09:00:00Z",
+  "replacementEvent": {
+    "eventType": "CUSTOMER_PAYMENT",
+    "amount": 900.00,
+    "currency": "EUR",
+    "effectiveAt": "2026-07-15T09:05:00Z",
+    "externalReference": "PAY-1001-CORRECTED"
+  }
+}
+```
+
+Rules:
+
+- The original event is never updated or deleted.
+- The reversal uses the original amount, currency, booking link, and a `reversesEventId` link.
+- A financial event can have only one reversal.
+- Reversal events cannot be reversed through this path.
+- Replacement events are optional and are stored as new accepted financial events.
+- A reason is required for auditability.
+
+Errors:
+
+- `FINANCIAL_EVENT_NOT_FOUND`
+- `FINANCIAL_EVENT_ALREADY_REVERSED`
+- `INVALID_FINANCIAL_REVERSAL`
+- `INVALID_REQUEST`
+- `INVALID_CURRENCY`
+- `INVALID_CURRENCY_PRECISION`
+- `MFA_REQUIRED`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
 ### Actuator
 
 - `GET /actuator/health`

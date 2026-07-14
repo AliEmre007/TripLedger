@@ -317,6 +317,7 @@ public class FinancialEventCsvImportService {
             case CHANNEL_COMMISSION, PAYMENT_FEE -> FinancialEventDirection.INCREASE_DEDUCTION;
             case SUPPLIER_PAYMENT -> FinancialEventDirection.INCREASE_SUPPLIER_SETTLEMENT;
             case SUPPLIER_CREDIT -> FinancialEventDirection.DECREASE_SUPPLIER_COST;
+            case REVERSAL -> FinancialEventDirection.REVERSAL;
             case MANUAL_ADJUSTMENT -> FinancialEventDirection.ADJUSTMENT;
         };
     }

@@ -598,16 +598,17 @@ Rules:
 
 Creates a reversal and optional replacement event.
 
-Roles: Administrator, Finance with MFA.
+Roles: Administrator or Finance with MFA.
 
 Request:
 
 ```json
 {
-  "reason": "Corrected source file from gateway",
-  "replacementEvent": {
-    "eventType": "CUSTOMER_PAYMENT",
-    "amount": "950.00",
+    "reason": "Corrected source file from gateway",
+    "effectiveAt": "2026-07-15T09:00:00Z",
+    "replacementEvent": {
+        "eventType": "CUSTOMER_PAYMENT",
+        "amount": "950.00",
     "currency": "EUR",
     "effectiveAt": "2026-07-13T10:00:00Z",
     "externalReference": "PAY-123-CORRECTED"
@@ -615,10 +616,26 @@ Request:
 }
 ```
 
+Rules:
+
+- The original accepted event is not updated or deleted.
+- The reversal is a new `REVERSAL` event linked to the original event by `reversesEventId`.
+- The reversal uses the original amount, currency, and booking link so the net effect can be audited.
+- Only one reversal may exist for an original event.
+- Replacement event is optional and is stored as a separate accepted event.
+- Reason is required.
+
 Errors:
 
-- `FINANCIAL_EVENT_IMMUTABLE`
+- `FINANCIAL_EVENT_NOT_FOUND`
+- `FINANCIAL_EVENT_ALREADY_REVERSED`
+- `INVALID_FINANCIAL_REVERSAL`
 - `INVALID_MANUAL_ADJUSTMENT`
+- `INVALID_REQUEST`
+- `INVALID_CURRENCY`
+- `INVALID_CURRENCY_PRECISION`
+- `MFA_REQUIRED`
+- `UNAUTHORISED_FINANCIAL_ACTION`
 
 ## 10. Economics
 

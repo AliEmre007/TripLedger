@@ -6,5 +6,6 @@ public enum FinancialEventDirection {
     INCREASE_DEDUCTION,
     INCREASE_SUPPLIER_SETTLEMENT,
     DECREASE_SUPPLIER_COST,
+    REVERSAL,
     ADJUSTMENT
 }

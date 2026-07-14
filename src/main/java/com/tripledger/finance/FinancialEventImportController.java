@@ -27,13 +27,16 @@ public class FinancialEventImportController {
     private final ActorContextResolver actorContextResolver;
     private final FinancialEventCsvImportService financialEventCsvImportService;
     private final FinancialEventQueryService financialEventQueryService;
+    private final FinancialEventReversalService financialEventReversalService;
 
     public FinancialEventImportController(ActorContextResolver actorContextResolver,
                                           FinancialEventCsvImportService financialEventCsvImportService,
-                                          FinancialEventQueryService financialEventQueryService) {
+                                          FinancialEventQueryService financialEventQueryService,
+                                          FinancialEventReversalService financialEventReversalService) {
         this.actorContextResolver = actorContextResolver;
         this.financialEventCsvImportService = financialEventCsvImportService;
         this.financialEventQueryService = financialEventQueryService;
+        this.financialEventReversalService = financialEventReversalService;
     }
 
     @PostMapping("/financial-event-imports")
@@ -60,6 +63,32 @@ public class FinancialEventImportController {
             HttpServletRequest servletRequest) {
         ActorContext actor = actorContextResolver.resolve(servletRequest);
         return financialEventQueryService.list(actor, unmatched);
+    }
+
+    @PostMapping("/financial-events/{eventId}/reversal")
+    @ResponseStatus(HttpStatus.CREATED)
+    public FinancialEventReversalService.FinancialEventReversalResult reverseFinancialEvent(
+            @NotNull @org.springframework.web.bind.annotation.PathVariable UUID eventId,
+            @Valid @RequestBody FinancialEventReversalRequest request,
+            HttpServletRequest servletRequest) {
+        ActorContext actor = actorContextResolver.resolve(servletRequest);
+        return financialEventReversalService.reverse(
+                actor,
+                eventId,
+                new FinancialEventReversalService.ReverseFinancialEventCommand(
+                        request.reason(),
+                        request.effectiveAt(),
+                        request.replacementEvent() == null
+                                ? null
+                                : new FinancialEventReversalService.ReplacementFinancialEventCommand(
+                                        request.replacementEvent().eventType(),
+                                        request.replacementEvent().amount(),
+                                        request.replacementEvent().currency(),
+                                        request.replacementEvent().effectiveAt(),
+                                        request.replacementEvent().externalReference()
+                                )
+                )
+        );
     }
 
     public record FinancialEventImportRequest(
@@ -93,5 +122,21 @@ public class FinancialEventImportController {
                     batch.completedAt()
             );
         }
+    }
+
+    public record FinancialEventReversalRequest(
+            @NotBlank String reason,
+            Instant effectiveAt,
+            ReplacementFinancialEventRequest replacementEvent
+    ) {
+    }
+
+    public record ReplacementFinancialEventRequest(
+            @NotNull FinancialEventType eventType,
+            @NotNull java.math.BigDecimal amount,
+            @NotBlank String currency,
+            @NotNull Instant effectiveAt,
+            String externalReference
+    ) {
     }
 }
