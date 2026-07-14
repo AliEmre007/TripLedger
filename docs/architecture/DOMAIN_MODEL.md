@@ -283,6 +283,10 @@ Fields:
 Rules:
 
 - Accepted events are immutable.
+- Reversal events link to the original event.
+- Manual adjustments require reason and authority.
+- Imported events preserve source-record provenance and duplicate source identities do not create duplicate financial effect.
+- Events without a known booking link remain unmatched and are excluded from booking reconciliation until allocation.
 - Corrections use reversal/replacement or controlled adjustment.
 - Event direction comes from event type, not user interpretation.
 - Raw card data and unrestricted bank credentials are prohibited.

@@ -325,7 +325,7 @@ Checks:
 Immutability:
 
 - Application does not expose update/delete.
-- Database trigger or restricted DB role should prevent updates to accepted rows except operational metadata explicitly approved.
+- `V7__financial_event_import.sql` adds database triggers that reject update and delete operations on accepted financial events.
 
 ### exchange_rate
 

@@ -61,6 +61,8 @@ Booking detail reads use `PROTECTED_READ` and are filtered by the actor organisa
 
 Supplier-obligation CSV imports use `OPERATIONAL_WRITE`. Accepted rows create organisation-scoped source records, suppliers, and supplier obligations. Unknown booking or item references are accepted as unlinked obligations rather than linked across tenants. Supplier-obligation reads use `PROTECTED_READ`, are filtered by organisation, and expose provenance and review state without raw CSV payload content.
 
+Financial-event CSV imports require `FINANCIAL_ACTION_WITH_MFA`. Accepted rows create organisation-scoped immutable source records and financial events. Unknown booking references are accepted as unmatched events rather than linked across tenants. Financial-event reads use `PROTECTED_READ`, are filtered by organisation, and expose source provenance without raw CSV payload content or prohibited payment data.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

@@ -1,0 +1,13 @@
+package com.tripledger.finance;
+
+public enum FinancialEventType {
+    CUSTOMER_PAYMENT,
+    CHANNEL_SETTLEMENT,
+    CHANNEL_COMMISSION,
+    PAYMENT_FEE,
+    REFUND,
+    PAYMENT_REVERSAL,
+    SUPPLIER_PAYMENT,
+    SUPPLIER_CREDIT,
+    MANUAL_ADJUSTMENT
+}

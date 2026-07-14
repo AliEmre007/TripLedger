@@ -13,6 +13,7 @@ public class SourceRecord {
 
     public static final String BOOKING_RECORD_TYPE = "BOOKING";
     public static final String SUPPLIER_OBLIGATION_RECORD_TYPE = "SUPPLIER_OBLIGATION";
+    public static final String FINANCIAL_EVENT_RECORD_TYPE = "FINANCIAL_EVENT";
 
     @Id
     private UUID id;

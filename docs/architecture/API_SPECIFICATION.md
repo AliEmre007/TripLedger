@@ -513,11 +513,69 @@ Errors:
 
 ## 9. Financial Events
 
+### `POST /financial-event-imports`
+
+Imports financial-event CSV content.
+
+Roles: Administrator or Finance with MFA.
+
+Request:
+
+```json
+{
+  "sourceSystemId": "uuid",
+  "fileName": "financial_events.csv",
+  "fileChecksum": "sha256:abc",
+  "csvContent": "template_type,template_version,..."
+}
+```
+
+Response:
+
+```json
+{
+  "importBatchId": "uuid",
+  "status": "COMPLETED",
+  "totalCount": 6,
+  "acceptedCount": 6,
+  "duplicateCount": 0,
+  "rejectedCount": 0,
+  "failedCount": 0,
+  "completedAt": "2026-07-14T06:00:00Z"
+}
+```
+
+Rules:
+
+- Supported template is `FINANCIAL_EVENT` version `1`.
+- Accepted rows create immutable financial events with source-record provenance.
+- Event direction is derived from event type.
+- Unknown or missing booking references are accepted as unmatched events.
+- Unmatched events do not contribute to booking reconciliation until allocated by later slices.
+- Duplicate unchanged source identities produce row outcome `DUPLICATE` and no duplicate financial effect.
+- Amount must be positive and use at most two fractional digits.
+- Validation-release supported currencies are `EUR`, `GBP`, `TRY`, and `USD`.
+
+Errors:
+
+- `UNSUPPORTED_TEMPLATE_VERSION`
+- `MISSING_REQUIRED_COLUMN`
+- `MISSING_REQUIRED_FIELD`
+- `INVALID_FIELD_TYPE`
+- `INVALID_CURRENCY`
+- `INVALID_CURRENCY_PRECISION`
+- `PROHIBITED_PAYMENT_DATA`
+- `STALE_SOURCE_VERSION`
+- `SOURCE_SYSTEM_NOT_FOUND`
+- `INACTIVE_SOURCE_SYSTEM`
+- `MFA_REQUIRED`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
 ### `GET /financial-events`
 
 Searches financial events.
 
-Roles: Administrator, Finance, Read-only Manager. Operations receives only permitted booking-scoped visibility.
+Roles: Administrator, Finance, Operations, Read-only Manager.
 
 Query:
 
@@ -529,6 +587,12 @@ Query:
 - `effectiveTo`
 - `page`
 - `size`
+
+Rules:
+
+- Lookup is scoped to the actor organisation.
+- `unmatched=true` returns only accepted events with no booking link.
+- Source provenance is included; raw source payload content is not returned.
 
 ### `POST /financial-events/{eventId}/reversal`
 

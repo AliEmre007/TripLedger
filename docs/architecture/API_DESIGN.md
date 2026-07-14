@@ -414,6 +414,74 @@ Rules:
 - Responses include source-record provenance and supplier reference/name.
 - Raw source payload content is not returned.
 
+### `POST /api/v1/financial-event-imports`
+
+Imports financial-event CSV content and creates immutable financial evidence records.
+
+Roles:
+
+- Administrator with MFA.
+- Finance with MFA.
+
+Request:
+
+```json
+{
+  "sourceSystemId": "uuid",
+  "fileName": "financial_events.csv",
+  "fileChecksum": "sha256:abc",
+  "csvContent": "template_type,template_version,..."
+}
+```
+
+Rules:
+
+- Supported financial-event template is `FINANCIAL_EVENT` version `1`.
+- Valid rows create one source record and one immutable financial event.
+- Source identity is `organisation + source system + FINANCIAL_EVENT + external event id + source version`.
+- Duplicate unchanged source identities are counted as `DUPLICATE`.
+- Changed content for an existing source identity is rejected with `STALE_SOURCE_VERSION`.
+- Amounts must be positive and use at most two fractional digits.
+- Supported validation-release currencies are `EUR`, `GBP`, `TRY`, and `USD`.
+- Unknown or missing booking references are accepted as unmatched events for review.
+- Raw card numbers, CVV values, and unrestricted payment credentials are rejected.
+
+Errors:
+
+- `UNSUPPORTED_TEMPLATE_VERSION`
+- `MISSING_REQUIRED_COLUMN`
+- `MISSING_REQUIRED_FIELD`
+- `INVALID_FIELD_TYPE`
+- `INVALID_CURRENCY`
+- `INVALID_CURRENCY_PRECISION`
+- `PROHIBITED_PAYMENT_DATA`
+- `STALE_SOURCE_VERSION`
+- `SOURCE_SYSTEM_NOT_FOUND`
+- `INACTIVE_SOURCE_SYSTEM`
+- `MFA_REQUIRED`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
+### `GET /api/v1/financial-events`
+
+Lists financial events inside the actor organisation.
+
+Query parameters:
+
+- `unmatched=true` returns only events with no booking link.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
+Rules:
+
+- Results are filtered by the actor organisation.
+- Responses include event type, direction, amount, currency, effective timestamp, source-record provenance, and booking link state.
+- Raw source payload content and prohibited payment data are not returned.
+
 ### Actuator
 
 - `GET /actuator/health`
