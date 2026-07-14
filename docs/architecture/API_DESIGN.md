@@ -21,6 +21,39 @@ Example response:
 
 Every response includes `X-Correlation-Id`.
 
+### `GET /api/v1/me`
+
+Returns the current protected actor context.
+
+Current Stage 7 implementation resolves the actor through local development headers and validates that the actor exists as an active `app_user` in the requested organisation. This is the temporary adapter boundary for the future OIDC integration.
+
+Required request headers until OIDC is integrated:
+
+- `X-TripLedger-Actor-Subject`
+- `X-TripLedger-Organisation-Id`
+
+Optional request header:
+
+- `X-TripLedger-Mfa-Satisfied`
+
+Example response:
+
+```json
+{
+  "userId": "uuid",
+  "organisationId": "uuid",
+  "displayName": "Finance User",
+  "role": "FINANCE",
+  "mfaSatisfied": true
+}
+```
+
+Errors:
+
+- `AUTHENTICATION_REQUIRED`
+- `ORG_REFERENCE_MISMATCH`
+- `INVALID_REQUEST`
+
 ### Actuator
 
 - `GET /actuator/health`

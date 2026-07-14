@@ -23,6 +23,17 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", "Request validation failed.", request, details);
     }
 
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ApiErrorResponse> handleApiException(ApiException exception, HttpServletRequest request) {
+        return build(
+                exception.status(),
+                exception.code(),
+                exception.getMessage(),
+                request,
+                exception.details()
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleUnexpected(Exception exception, HttpServletRequest request) {
         return build(

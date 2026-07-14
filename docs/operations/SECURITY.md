@@ -32,7 +32,7 @@ This is the implementation-facing security guide. The full Stage 4 security desi
 
 ## Authentication and Authorization
 
-The target architecture uses OIDC and MFA. Current Stage 6 code only has public health endpoints; protected API work must add:
+The target architecture uses OIDC and MFA. Stage 7 starts protected API work with a local header-backed actor adapter for development and tests. Protected requests currently resolve:
 
 - authenticated actor context;
 - active user check;
@@ -40,6 +40,12 @@ The target architecture uses OIDC and MFA. Current Stage 6 code only has public 
 - role;
 - MFA state where required;
 - correlation id.
+
+Until OIDC is integrated, protected local requests use:
+
+- `X-TripLedger-Actor-Subject`;
+- `X-TripLedger-Organisation-Id`;
+- optional `X-TripLedger-Mfa-Satisfied`.
 
 Every protected request must enforce role and organisation ownership on the server.
 
