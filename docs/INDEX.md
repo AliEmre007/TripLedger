@@ -58,6 +58,7 @@ This directory keeps project knowledge out of the repository root while preservi
 - [Stage 4 domain modeling and architecture](stages/STAGE_4_DOMAIN_MODELING_AND_ARCHITECTURE.md)
 - [Stage 5 delivery planning](stages/STAGE_5_DELIVERY_PLANNING.md)
 - [Stage 6 engineering foundation](stages/STAGE_6_ENGINEERING_FOUNDATION.md)
+- [Stage 8 quality assurance and release readiness](stages/STAGE_8_QUALITY_ASSURANCE_RELEASE_READINESS.md)
 
 ## Contribution
 
