@@ -77,6 +77,8 @@ Deterministic matching runs require `FINANCIAL_ACTION`, are scoped to the actor 
 
 Reconciliation runs require `FINANCIAL_ACTION`, are scoped to the actor organisation, and persist derived state without modifying accepted financial events. Prior reconciliation results are superseded rather than deleted.
 
+Generated discrepancies are organisation-scoped and deduplicated by active cause identity. Reconciliation creates review evidence without exposing raw source payload content.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

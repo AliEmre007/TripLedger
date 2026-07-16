@@ -775,6 +775,9 @@ Rules:
 - `DISCREPANT` is returned when current match evidence includes a review-required state such as `AMBIGUOUS_MATCH`.
 - A new run supersedes the previous current reconciliation result, preserving prior results for audit.
 - Re-running unchanged inputs produces equivalent status and totals and does not create duplicate financial allocations.
+- Material short settlement creates a `SHORT_SETTLEMENT` discrepancy.
+- Ambiguous match evidence creates an `AMBIGUOUS_MATCH` discrepancy.
+- Existing active discrepancies with the same booking, type, component, and cause are reused instead of duplicated.
 
 Errors:
 

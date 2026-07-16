@@ -766,6 +766,12 @@ Statuses:
 
 Validation release may call this automatically after imports; the explicit endpoint exists for deterministic reruns and evidence.
 
+Discrepancy generation:
+
+- Material short settlement creates `SHORT_SETTLEMENT`.
+- Ambiguous match evidence creates `AMBIGUOUS_MATCH`.
+- Active discrepancies are deduplicated by booking, type, component, and cause identity.
+
 ### `POST /bookings/{bookingId}/matching-runs`
 
 Runs the deterministic one-to-one matcher for one booking.

@@ -5,6 +5,7 @@ import com.tripledger.authorization.Permission;
 import com.tripledger.booking.Booking;
 import com.tripledger.booking.BookingRepository;
 import com.tripledger.common.api.ApiException;
+import com.tripledger.discrepancy.DiscrepancyGenerationService;
 import com.tripledger.economics.BookingEconomicsDetail;
 import com.tripledger.economics.BookingEconomicsService;
 import com.tripledger.economics.CalculationStatus;
@@ -33,6 +34,7 @@ public class ReconciliationService {
     private final BookingMatchRepository bookingMatchRepository;
     private final MatchAllocationRepository matchAllocationRepository;
     private final ReconciliationResultRepository reconciliationResultRepository;
+    private final DiscrepancyGenerationService discrepancyGenerationService;
     private final AuthorizationService authorizationService;
     private final Clock clock;
 
@@ -41,6 +43,7 @@ public class ReconciliationService {
                                  BookingMatchRepository bookingMatchRepository,
                                  MatchAllocationRepository matchAllocationRepository,
                                  ReconciliationResultRepository reconciliationResultRepository,
+                                 DiscrepancyGenerationService discrepancyGenerationService,
                                  AuthorizationService authorizationService,
                                  Clock clock) {
         this.bookingRepository = bookingRepository;
@@ -48,6 +51,7 @@ public class ReconciliationService {
         this.bookingMatchRepository = bookingMatchRepository;
         this.matchAllocationRepository = matchAllocationRepository;
         this.reconciliationResultRepository = reconciliationResultRepository;
+        this.discrepancyGenerationService = discrepancyGenerationService;
         this.authorizationService = authorizationService;
         this.clock = clock;
     }
@@ -84,6 +88,7 @@ public class ReconciliationService {
         BigDecimal expectedAmount = economics.expectedCustomerReceivable();
         BigDecimal varianceAmount = expectedAmount == null ? null : expectedAmount.subtract(matchedAmount);
         String varianceCurrency = expectedAmount == null ? null : economics.currency();
+        generateDiscrepancies(booking, economics, hasReviewRequired, matchedAmount);
 
         Instant now = Instant.now(clock);
         reconciliationResultRepository
@@ -139,5 +144,26 @@ public class ReconciliationService {
             return ReconciliationStatus.PARTIALLY_RECONCILED;
         }
         return ReconciliationStatus.NOT_READY;
+    }
+
+    private void generateDiscrepancies(Booking booking,
+                                       BookingEconomicsDetail economics,
+                                       boolean hasReviewRequired,
+                                       BigDecimal matchedAmount) {
+        if (hasReviewRequired) {
+            discrepancyGenerationService.recordAmbiguousMatch(
+                    booking.organisationId(),
+                    booking.id(),
+                    "Ambiguous deterministic match requires review.");
+        }
+        if (economics.expectedCustomerReceivable() != null && matchedAmount.signum() > 0
+                && matchedAmount.compareTo(economics.expectedCustomerReceivable()) < 0) {
+            discrepancyGenerationService.recordShortSettlement(
+                    booking.organisationId(),
+                    booking.id(),
+                    economics.expectedCustomerReceivable(),
+                    matchedAmount,
+                    economics.currency());
+        }
     }
 }

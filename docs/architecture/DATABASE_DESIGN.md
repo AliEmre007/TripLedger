@@ -502,6 +502,12 @@ Unique partial index:
 
 - `(organisation_id, booking_id, type, component, cause_identity)` where status is active.
 
+Implementation note:
+
+- `V14__basic_discrepancy_generation.sql` creates `discrepancy` for VR-019.
+- Validation-release generated discrepancy types are `SHORT_SETTLEMENT` and `AMBIGUOUS_MATCH`.
+- The active unique index enforces deduplication on reconciliation rerun.
+
 ### audit_event
 
 | Column | Type | Constraint |

@@ -12,6 +12,7 @@ import com.tripledger.booking.Booking;
 import com.tripledger.booking.BookingLifecycleStatus;
 import com.tripledger.booking.BookingRepository;
 import com.tripledger.common.api.ApiException;
+import com.tripledger.discrepancy.DiscrepancyGenerationService;
 import com.tripledger.economics.BookingEconomicsDetail;
 import com.tripledger.economics.BookingEconomicsService;
 import com.tripledger.economics.CalculationStatus;
@@ -62,6 +63,9 @@ class ReconciliationServiceTest {
 
     @Mock
     private ReconciliationResultRepository reconciliationResultRepository;
+
+    @Mock
+    private DiscrepancyGenerationService discrepancyGenerationService;
 
     @Mock
     private AuthorizationService authorizationService;
@@ -117,6 +121,12 @@ class ReconciliationServiceTest {
 
         assertThat(result.status()).isEqualTo(ReconciliationStatus.PARTIALLY_RECONCILED);
         assertThat(result.varianceAmount()).isEqualByComparingTo(new BigDecimal("450.00"));
+        verify(discrepancyGenerationService).recordShortSettlement(
+                ORGANISATION_ID,
+                BOOKING_ID,
+                new BigDecimal("950.00"),
+                new BigDecimal("500.00"),
+                "EUR");
     }
 
     @Test
@@ -137,6 +147,10 @@ class ReconciliationServiceTest {
         ReconciliationResultDetail result = service().run(actor(), BOOKING_ID);
 
         assertThat(result.status()).isEqualTo(ReconciliationStatus.DISCREPANT);
+        verify(discrepancyGenerationService).recordAmbiguousMatch(
+                ORGANISATION_ID,
+                BOOKING_ID,
+                "Ambiguous deterministic match requires review.");
     }
 
     @Test
@@ -237,6 +251,7 @@ class ReconciliationServiceTest {
                 bookingMatchRepository,
                 matchAllocationRepository,
                 reconciliationResultRepository,
+                discrepancyGenerationService,
                 authorizationService,
                 Clock.fixed(NOW, ZoneOffset.UTC)
         );
