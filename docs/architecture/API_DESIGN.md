@@ -628,6 +628,76 @@ Errors:
 - `BOOKING_NOT_FOUND`
 - `UNAUTHORISED_FINANCIAL_ACTION`
 
+### `GET /api/v1/bookings/{bookingId}/economics/explanation`
+
+Returns the calculation explanation for the current booking economics inputs.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
+Example response:
+
+```json
+{
+  "bookingId": "uuid",
+  "ruleVersion": "economics-v1",
+  "currency": "EUR",
+  "formulas": [
+    {
+      "subtotal": "expectedCustomerReceivable",
+      "formula": "contractedGrossSale - approvedDiscounts - expectedCustomerRefunds - waivedAmounts",
+      "ruleReference": "BR-ECO-002"
+    }
+  ],
+  "components": [
+    {
+      "componentType": "APPROVED_DISCOUNT",
+      "subtotal": "expectedCustomerReceivable",
+      "sourceTable": "financial_event",
+      "sourceId": "uuid",
+      "sourceRecordId": "uuid",
+      "originalAmount": 3500.00,
+      "originalCurrency": "TRY",
+      "amount": 100.00,
+      "currency": "EUR",
+      "exchangeRateId": "uuid",
+      "formulaReference": "BR-ECO-002"
+    }
+  ],
+  "exchangeRates": [
+    {
+      "id": "uuid",
+      "financialEventId": "uuid",
+      "sourceAmount": 3500.00,
+      "sourceCurrency": "TRY",
+      "targetAmount": 100.00,
+      "targetCurrency": "EUR",
+      "rate": 0.028571428600,
+      "effectiveAt": "2026-07-10T09:00:00Z",
+      "rateSource": "manual-finance-evidence",
+      "roundingPolicyVersion": "HALF_UP-v1"
+    }
+  ],
+  "rounding": "HALF_UP to target currency minor unit"
+}
+```
+
+Rules:
+
+- The response is filtered by actor organisation.
+- Formulas expose business-rule references.
+- Components expose source table, source id, source record id, original currency, calculation currency, and exchange-rate id when conversion evidence is used.
+- Missing cross-currency evidence appears as a component with null converted amount/currency and no exchange-rate id.
+
+Errors:
+
+- `BOOKING_NOT_FOUND`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
 ### Actuator
 
 - `GET /actuator/health`

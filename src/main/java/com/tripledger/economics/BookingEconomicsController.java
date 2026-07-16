@@ -15,16 +15,26 @@ public class BookingEconomicsController {
 
     private final ActorContextResolver actorContextResolver;
     private final BookingEconomicsService bookingEconomicsService;
+    private final BookingEconomicsExplanationService bookingEconomicsExplanationService;
 
     public BookingEconomicsController(ActorContextResolver actorContextResolver,
-                                      BookingEconomicsService bookingEconomicsService) {
+                                      BookingEconomicsService bookingEconomicsService,
+                                      BookingEconomicsExplanationService bookingEconomicsExplanationService) {
         this.actorContextResolver = actorContextResolver;
         this.bookingEconomicsService = bookingEconomicsService;
+        this.bookingEconomicsExplanationService = bookingEconomicsExplanationService;
     }
 
     @GetMapping("/{bookingId}/economics")
     public BookingEconomicsDetail calculate(@PathVariable UUID bookingId, HttpServletRequest servletRequest) {
         ActorContext actor = actorContextResolver.resolve(servletRequest);
         return bookingEconomicsService.calculate(actor, bookingId);
+    }
+
+    @GetMapping("/{bookingId}/economics/explanation")
+    public BookingEconomicsExplanationDetail explain(@PathVariable UUID bookingId,
+                                                     HttpServletRequest servletRequest) {
+        ActorContext actor = actorContextResolver.resolve(servletRequest);
+        return bookingEconomicsExplanationService.explain(actor, bookingId);
     }
 }

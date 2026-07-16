@@ -71,6 +71,8 @@ Exchange-rate evidence creation requires `FINANCIAL_ACTION_WITH_MFA`. Evidence i
 
 Booking economics reads use `PROTECTED_READ`, are filtered by organisation, and create calculation snapshots without exposing raw source payloads. Missing financial inputs are returned as `NOT_READY` evidence rather than zero-filled values.
 
+Booking economics explanation reads use `PROTECTED_READ` and are filtered by organisation. They expose source identities, source record ids, formula references, currencies, and exchange-rate evidence, but not raw imported payload content.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

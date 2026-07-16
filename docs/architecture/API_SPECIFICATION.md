@@ -718,6 +718,20 @@ Rules:
 
 Returns formulas, component records, exchange rates, rounding, and rule version.
 
+Roles: Administrator, Finance, Operations, Read-only Manager.
+
+Response includes:
+
+- formula entries with subtotal and business-rule reference;
+- component entries with source table, source id, source record id, original amount/currency, converted amount/currency, and formula reference;
+- exchange-rate entries when cross-currency financial evidence is used;
+- rounding policy text.
+
+Errors:
+
+- `BOOKING_NOT_FOUND`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
 ## 11. Matching and Reconciliation
 
 ### `POST /bookings/{bookingId}/reconciliation-runs`

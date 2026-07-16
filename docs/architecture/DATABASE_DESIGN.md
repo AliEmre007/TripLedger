@@ -390,7 +390,8 @@ Notes:
 
 Implementation note:
 
-- `V11__booking_economics_snapshot.sql` creates `calculation_snapshot` for VR-015. The current implementation stores unknown component names as text containing a JSON array shape until VR-016 adds richer explanation components.
+- `V11__booking_economics_snapshot.sql` creates `calculation_snapshot` for VR-015. Unknown component names are stored as text containing a JSON array shape.
+- VR-016 exposes calculation explanations from current booking, financial-event, supplier-obligation, and exchange-rate evidence records. Persisted `calculation_component` rows remain deferred until calculation snapshots need immutable component replay.
 
 ### calculation_component
 

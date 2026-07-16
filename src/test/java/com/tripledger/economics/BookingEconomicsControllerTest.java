@@ -42,6 +42,9 @@ class BookingEconomicsControllerTest {
     @MockitoBean
     private BookingEconomicsService bookingEconomicsService;
 
+    @MockitoBean
+    private BookingEconomicsExplanationService bookingEconomicsExplanationService;
+
     @Test
     void returnsCurrentBookingEconomics() throws Exception {
         when(actorContextResolver.resolve(any())).thenReturn(actor());
@@ -75,6 +78,22 @@ class BookingEconomicsControllerTest {
                 .andExpect(jsonPath("$.error.correlationId").isNotEmpty());
     }
 
+    @Test
+    void returnsBookingEconomicsExplanation() throws Exception {
+        when(actorContextResolver.resolve(any())).thenReturn(actor());
+        when(bookingEconomicsExplanationService.explain(any(), any())).thenReturn(explanation());
+
+        mockMvc.perform(get("/api/v1/bookings/{bookingId}/economics/explanation", BOOKING_ID))
+                .andExpect(status().isOk())
+                .andExpect(header().string("X-Correlation-Id", not(blankOrNullString())))
+                .andExpect(jsonPath("$.bookingId").value(BOOKING_ID.toString()))
+                .andExpect(jsonPath("$.ruleVersion").value("economics-v1"))
+                .andExpect(jsonPath("$.formulas[0].ruleReference").value("BR-ECO-001"))
+                .andExpect(jsonPath("$.components[0].componentType").value("CONTRACTED_GROSS_SALE"))
+                .andExpect(jsonPath("$.exchangeRates[0].roundingPolicyVersion").value("HALF_UP-v1"))
+                .andExpect(jsonPath("$.rounding").value("HALF_UP to target currency minor unit"));
+    }
+
     private BookingEconomicsDetail detail() {
         return new BookingEconomicsDetail(
                 SNAPSHOT_ID,
@@ -89,6 +108,45 @@ class BookingEconomicsControllerTest {
                 CalculationStatus.READY,
                 List.of(),
                 NOW
+        );
+    }
+
+    private BookingEconomicsExplanationDetail explanation() {
+        return new BookingEconomicsExplanationDetail(
+                BOOKING_ID,
+                "economics-v1",
+                "EUR",
+                List.of(new BookingEconomicsExplanationDetail.FormulaDetail(
+                        "contractedGrossSale",
+                        "sum(original active and historically contracted booking-item selling amounts)",
+                        "BR-ECO-001"
+                )),
+                List.of(new BookingEconomicsExplanationDetail.ComponentDetail(
+                        "CONTRACTED_GROSS_SALE",
+                        "contractedGrossSale",
+                        "booking",
+                        BOOKING_ID,
+                        UUID.fromString("55555555-5555-5555-5555-555555555555"),
+                        new BigDecimal("1000.00"),
+                        "EUR",
+                        new BigDecimal("1000.00"),
+                        "EUR",
+                        null,
+                        "BR-ECO-001"
+                )),
+                List.of(new BookingEconomicsExplanationDetail.ExchangeRateDetail(
+                        UUID.fromString("66666666-6666-6666-6666-666666666666"),
+                        UUID.fromString("77777777-7777-7777-7777-777777777777"),
+                        new BigDecimal("3500.00"),
+                        "TRY",
+                        new BigDecimal("100.00"),
+                        "EUR",
+                        new BigDecimal("0.028571428600"),
+                        NOW,
+                        "manual-finance-evidence",
+                        "HALF_UP-v1"
+                )),
+                "HALF_UP to target currency minor unit"
         );
     }
 
