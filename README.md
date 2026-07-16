@@ -2,7 +2,9 @@
 
 TripLedger is a provider-neutral financial control layer for multi-supplier tourism operators. It imports booking, payment, settlement, refund, and supplier records, calculates booking-level financial expectations, matches deterministic records, and exposes discrepancies with audit evidence.
 
-The current repository is in **Stage 6 - Engineering Foundation**. It contains the planning/design documents plus a minimal Java/Spring Boot foundation that can be built, tested, run, and extended consistently.
+The current repository is ready for the **v0.1.0-validation** release. It contains the validation-release backend, operational evidence, and synthetic demo data needed to run, smoke-test, review, back up, and restore a validation deployment.
+
+This release is for synthetic or anonymised validation/demo data only. Real customer financial data requires the remaining production-readiness gates documented in Stage 8 and Stage 9.
 
 ## Prerequisites
 
@@ -124,6 +126,9 @@ Included now:
 | [Test strategy](docs/operations/TEST_STRATEGY.md) | Test layers, commands, fixture approach |
 | [Runbook](docs/operations/RUNBOOK.md) | Local run, health checks, backup/restore, incident steps |
 | [Validation demo](docs/operations/VALIDATION_DEMO.md) | End-to-end synthetic demo dataset and evidence path |
+| [Stage 8 release readiness](docs/stages/STAGE_8_QUALITY_ASSURANCE_RELEASE_READINESS.md) | QA, release checklist, rollback plan, known risks |
+| [Stage 9 operations](docs/stages/STAGE_9_DEPLOYMENT_AND_OPERATIONS.md) | Deployment and operations evidence for the validation release |
+| [v0.1.0 validation release](docs/operations/releases/V0_1_0_VALIDATION.md) | Release notes, evidence, included scope, and operating limits |
 | [AGENTS.md](AGENTS.md) | Rules for AI/coding agents working in this repo |
 | [ADRs](docs/architecture/ADRs/) | Architecture decision records |
 
