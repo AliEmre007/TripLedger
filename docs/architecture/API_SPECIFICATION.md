@@ -647,6 +647,42 @@ Errors:
 
 ## 10. Economics
 
+### `POST /exchange-rate-evidence`
+
+Creates explicit exchange-rate evidence for cross-currency workflows.
+
+Roles: Administrator or Finance with MFA.
+
+Request:
+
+```json
+{
+  "financialEventId": "uuid",
+  "sourceAmount": "3500.00",
+  "sourceCurrency": "TRY",
+  "targetCurrency": "EUR",
+  "rate": "0.0285714286",
+  "effectiveAt": "2026-07-10T09:00:00Z",
+  "rateSource": "manual-finance-evidence",
+  "roundingPolicyVersion": "HALF_UP-v1"
+}
+```
+
+Response includes source amount/currency, target amount/currency, rate, effective time, rate source, rounding policy, actor, and creation timestamp.
+
+Errors:
+
+- `FINANCIAL_EVENT_NOT_FOUND`
+- `INVALID_EXCHANGE_RATE`
+- `INVALID_CURRENCY`
+- `INVALID_CURRENCY_PRECISION`
+- `MFA_REQUIRED`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
+### `GET /exchange-rate-evidence`
+
+Lists exchange-rate evidence in the actor organisation. Optional `financialEventId` filters evidence for one event.
+
 ### `GET /bookings/{bookingId}/economics`
 
 Returns current calculation snapshot.

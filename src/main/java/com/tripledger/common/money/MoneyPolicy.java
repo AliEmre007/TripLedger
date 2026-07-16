@@ -23,6 +23,19 @@ public final class MoneyPolicy {
         return FRACTION_DIGITS.keySet();
     }
 
+    public static BigDecimal convert(BigDecimal sourceAmount,
+                                     String sourceCurrency,
+                                     String targetCurrency,
+                                     BigDecimal rate) {
+        BigDecimal normalizedSourceAmount = positiveAmount(sourceAmount, sourceCurrency);
+        String normalizedTargetCurrency = currency(targetCurrency);
+        if (rate == null || rate.signum() <= 0) {
+            throw new MoneyValidationException("INVALID_FIELD_TYPE", "Rate must be positive.");
+        }
+        int targetScale = FRACTION_DIGITS.get(normalizedTargetCurrency);
+        return normalizedSourceAmount.multiply(rate).setScale(targetScale, RoundingMode.HALF_UP);
+    }
+
     public static BigDecimal nonNegativeAmount(String rawAmount, String currency) {
         BigDecimal amount = decimal(rawAmount);
         if (amount.signum() < 0) {

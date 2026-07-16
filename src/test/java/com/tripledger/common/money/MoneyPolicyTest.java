@@ -41,4 +41,14 @@ class MoneyPolicyTest {
                 .extracting("reason")
                 .isEqualTo("Amount must be positive.");
     }
+
+    @Test
+    void convertsUsingExactDecimalRateAndTargetCurrencyRounding() {
+        assertThat(MoneyPolicy.convert(
+                new BigDecimal("3500.00"),
+                "TRY",
+                "EUR",
+                new BigDecimal("0.0285714286")))
+                .isEqualByComparingTo(new BigDecimal("100.00"));
+    }
 }

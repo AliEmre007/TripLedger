@@ -527,6 +527,62 @@ Errors:
 - `MFA_REQUIRED`
 - `UNAUTHORISED_FINANCIAL_ACTION`
 
+### `POST /api/v1/exchange-rate-evidence`
+
+Creates explicit exchange-rate evidence for a cross-currency financial record or calculation input.
+
+Roles:
+
+- Administrator with MFA.
+- Finance with MFA.
+
+Request:
+
+```json
+{
+  "financialEventId": "uuid",
+  "sourceAmount": 3500.00,
+  "sourceCurrency": "TRY",
+  "targetCurrency": "EUR",
+  "rate": 0.0285714286,
+  "effectiveAt": "2026-07-10T09:00:00Z",
+  "rateSource": "manual-finance-evidence",
+  "roundingPolicyVersion": "HALF_UP-v1"
+}
+```
+
+Rules:
+
+- Source and target currencies must be supported validation-release currencies and must differ.
+- Rate must be positive and may use up to 12 fractional digits.
+- `targetAmount` is calculated with exact decimal multiplication and target-currency rounding, then persisted as the rounding result.
+- When `financialEventId` is supplied, the event must belong to the actor organisation and the source amount/currency must match that event.
+- Cross-organisation financial-event ids return `FINANCIAL_EVENT_NOT_FOUND`.
+
+Errors:
+
+- `FINANCIAL_EVENT_NOT_FOUND`
+- `INVALID_EXCHANGE_RATE`
+- `INVALID_CURRENCY`
+- `INVALID_CURRENCY_PRECISION`
+- `MFA_REQUIRED`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
+### `GET /api/v1/exchange-rate-evidence`
+
+Lists exchange-rate evidence inside the actor organisation.
+
+Query parameters:
+
+- `financialEventId=uuid` returns evidence for one financial event.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
 ### Actuator
 
 - `GET /actuator/health`

@@ -344,7 +344,10 @@ Immutability:
 |---|---|---|
 | id | uuid | primary key |
 | organisation_id | uuid | not null |
+| financial_event_id | uuid | nullable |
+| source_amount | numeric(19,4) | not null |
 | source_currency | char(3) | not null |
+| target_amount | numeric(19,4) | not null |
 | target_currency | char(3) | not null |
 | rate | numeric(28,12) | not null |
 | effective_at | timestamptz | not null |
@@ -356,6 +359,15 @@ Immutability:
 Check:
 
 - `rate > 0`
+- `source_currency` and `target_currency` are supported validation-release currencies and differ.
+- `source_amount` and `target_amount` are positive two-decimal money values.
+- `rate` uses no more than 12 fractional digits.
+
+Notes:
+
+- `target_amount` is the persisted rounded result of `source_amount * rate`.
+- `financial_event_id`, when present, links the evidence to the converted financial event.
+- `V10__exchange_rate_evidence.sql` adds persisted exchange-rate evidence for VR-014.
 
 ### calculation_snapshot
 

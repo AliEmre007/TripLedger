@@ -67,6 +67,8 @@ Financial-event reversals require `FINANCIAL_ACTION_WITH_MFA`. The correction pa
 
 Money and currency validation is centralised in the application money policy and backed by database currency and minor-unit checks. Invalid precision and unsupported currencies are rejected before domain writes, and binary floating-point values are not used for persisted financial amounts.
 
+Exchange-rate evidence creation requires `FINANCIAL_ACTION_WITH_MFA`. Evidence is organisation-scoped, uses exact decimal rates, stores the rounded converted result, and cannot be attached to a financial event outside the actor organisation. Reads use `PROTECTED_READ` and are filtered by organisation.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:
