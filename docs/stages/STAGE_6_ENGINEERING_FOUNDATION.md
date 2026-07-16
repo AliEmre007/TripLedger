@@ -25,6 +25,7 @@ Stage 6 creates repeatable ways to build, test, run, deploy, and understand the 
 | Secret handling guide | `SECURITY.md` |
 | Test strategy | `TEST_STRATEGY.md` |
 | Runbook | `RUNBOOK.md` |
+| Backup/restore rehearsal procedure | `BACKUP_RESTORE_REHEARSAL.md`, `scripts/backup-local.sh`, `scripts/restore-local.sh` |
 | Branch and PR workflow | `docs/CONTRIBUTING.md` |
 
 ## 3. Technology Foundation
@@ -38,6 +39,7 @@ Stage 6 creates repeatable ways to build, test, run, deploy, and understand the 
 - Spring Actuator for health and metrics.
 - Checkstyle for initial linting.
 - GitHub Actions for CI.
+- Local PostgreSQL backup and restore rehearsal scripts.
 
 ## 4. Implemented Endpoints
 

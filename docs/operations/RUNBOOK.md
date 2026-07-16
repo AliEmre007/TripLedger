@@ -46,6 +46,15 @@ curl -i http://localhost:18080/actuator/metrics/tripledger.http.errors
 curl -i http://localhost:18080/actuator/metrics/tripledger.job.retries
 ```
 
+Backup and restore:
+
+```bash
+make backup-local
+BACKUP_DIR=/tmp/tripledger-backups/<backup-id> RESTORE_CONFIRM=restore-local make restore-local
+```
+
+The restore command is destructive to the selected local database. Use it only against local synthetic data or an isolated rehearsal environment.
+
 Deployment smoke check:
 
 ```bash
@@ -171,19 +180,37 @@ Change `APP_PORT` in `.env`. Add a local Compose override if direct host access 
 
 ## Backup and Restore
 
-Stage 6 has local runtime only. Pilot backup/restore must later satisfy `DEPLOYMENT_DIAGRAM.md` and `DEFINITION_OF_DONE.md`.
+The validation release has executable local backup and restore tooling. Pilot backup/restore must later satisfy `DEPLOYMENT_DIAGRAM.md` and `DEFINITION_OF_DONE.md`.
 
-Local database dump example:
-
-```bash
-docker compose exec db pg_dump -U tripledger tripledger > /tmp/tripledger-local.sql
-```
-
-Local restore example:
+Local backup:
 
 ```bash
-docker compose exec -T db psql -U tripledger tripledger < /tmp/tripledger-local.sql
+make backup-local
 ```
+
+Default output:
+
+```text
+/tmp/tripledger-backups/<backup-id>/tripledger.sql
+/tmp/tripledger-backups/<backup-id>/manifest.json
+```
+
+Local restore rehearsal:
+
+```bash
+BACKUP_DIR=/tmp/tripledger-backups/<backup-id> RESTORE_CONFIRM=restore-local make restore-local
+make smoke
+```
+
+The restore script:
+
+- verifies the dump checksum against `manifest.json`;
+- drops and recreates the local `public` schema;
+- loads the backup dump;
+- compares booking, financial-event, match, discrepancy, and audit counts against the manifest;
+- writes `restore-evidence.json`.
+
+See `docs/operations/BACKUP_RESTORE_REHEARSAL.md` for the AC-072 evidence format.
 
 ## Incident Notes
 

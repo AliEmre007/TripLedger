@@ -608,3 +608,4 @@ Additional performance indexes require measured query plans against the referenc
 - Destructive migrations require backup/restore evidence and an ADR when they affect low-reversibility records.
 - Backup manifest records database dump timestamp, schema version, row counts for critical tables, and checksum.
 - Restore validation checks counts for booking, financial event, match, discrepancy, and audit tables.
+- Local restore tooling validates dump SHA-256 before restore and writes restore evidence after count checks pass.

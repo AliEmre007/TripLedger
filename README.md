@@ -49,6 +49,8 @@ make test       # run unit tests in Maven container
 make verify     # run tests and checkstyle in Maven container
 make run        # build and run app + PostgreSQL
 make smoke      # run local liveness/readiness smoke checks
+make backup-local   # create local PostgreSQL dump and manifest
+make restore-local  # restore BACKUP_DIR after RESTORE_CONFIRM=restore-local
 make stop       # stop services
 make logs       # follow app logs
 make clean      # stop services and delete volumes

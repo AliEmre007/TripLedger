@@ -134,6 +134,8 @@ Backup manifest includes:
 - checksum;
 - storage object count where applicable.
 
+The validation-release local tooling writes the database dump and `manifest.json` with SHA-256 checksum and critical table counts. Restore writes `restore-evidence.json` after validating the dump checksum and restored counts.
+
 Restore verification checks:
 
 - application readiness;
@@ -143,6 +145,8 @@ Restore verification checks:
 - discrepancy count;
 - audit event count;
 - sample booking timeline reconstruction.
+
+For local synthetic rehearsal, `make backup-local` and `RESTORE_CONFIRM=restore-local make restore-local` provide the executable database recovery path. Pilot rehearsal must add encrypted storage, access logging, and restore timing evidence.
 
 ## 8. Operational Health
 
