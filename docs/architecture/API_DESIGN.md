@@ -784,6 +784,82 @@ Errors:
 - `BOOKING_NOT_FOUND`
 - `UNAUTHORISED_FINANCIAL_ACTION`
 
+### `GET /api/v1/discrepancies`
+
+Lists discrepancies inside the actor organisation.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
+Query filters:
+
+- `status`: `ACTIVE` or `RESOLVED`.
+- `type`: `SHORT_SETTLEMENT` or `AMBIGUOUS_MATCH`.
+- `severity`: `LOW`, `MEDIUM`, `HIGH`, or `CRITICAL`.
+- `ownerUserId`: assigned user id.
+- `currency`: three-letter currency code.
+- `page`: zero-based page number, default `0`.
+- `size`: page size from `1` to `100`, default `50`.
+
+Example response:
+
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "organisationId": "uuid",
+      "bookingId": "uuid",
+      "type": "SHORT_SETTLEMENT",
+      "severity": "HIGH",
+      "component": "EXPECTED_CUSTOMER_RECEIVABLE",
+      "amount": 50.00,
+      "currency": "EUR",
+      "status": "ACTIVE",
+      "ownerUserId": null,
+      "explanation": "Expected EUR 850.00 but matched EUR 800.00; variance EUR 50.00.",
+      "ageDays": 2,
+      "createdAt": "2026-07-14T10:00:00Z",
+      "resolvedAt": null
+    }
+  ],
+  "summary": {
+    "totalCount": 1,
+    "activeCount": 1,
+    "resolvedCount": 0,
+    "totalAmount": 50.00
+  },
+  "page": 0,
+  "size": 50,
+  "totalItems": 1,
+  "totalPages": 1
+}
+```
+
+Rules:
+
+- Results and summary counts are filtered by the actor organisation and the same supplied filters.
+- Invalid filter values return `INVALID_REQUEST`.
+
+### `GET /api/v1/discrepancies/{discrepancyId}`
+
+Returns one discrepancy inside the actor organisation with available investigation evidence.
+
+Rules:
+
+- Missing and cross-organisation ids return `DISCREPANCY_NOT_FOUND`.
+- Validation-release detail includes generated cause identity, explanation, owner/status state, amount/currency evidence, age, and related booking evidence when the discrepancy is booking-linked.
+- Raw source payloads are not returned.
+
+Errors:
+
+- `DISCREPANCY_NOT_FOUND`
+- `INVALID_REQUEST`
+
 ### Actuator
 
 - `GET /actuator/health`

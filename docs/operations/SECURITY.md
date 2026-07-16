@@ -79,6 +79,8 @@ Reconciliation runs require `FINANCIAL_ACTION`, are scoped to the actor organisa
 
 Generated discrepancies are organisation-scoped and deduplicated by active cause identity. Reconciliation creates review evidence without exposing raw source payload content.
 
+Discrepancy list and detail reads use `PROTECTED_READ` and are filtered by the actor organisation. Missing and cross-organisation discrepancy ids return `DISCREPANCY_NOT_FOUND`. Queue summaries are calculated from the same tenant-scoped filters as the listed rows, and detail responses expose generated evidence and booking references without raw source payloads.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

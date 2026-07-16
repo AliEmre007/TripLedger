@@ -857,22 +857,36 @@ Filters discrepancy queue.
 
 Query:
 
-- `status`
-- `type`
-- `severity`
+- `status`: `ACTIVE`, `RESOLVED`
+- `type`: `SHORT_SETTLEMENT`, `AMBIGUOUS_MATCH`
+- `severity`: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`
 - `ownerUserId`
-- `sourceSystemId`
 - `currency`
-- `ageMinDays`
-- `amountMin`
 - `page`
 - `size`
 
 Roles: Administrator, Finance, Operations for permitted operational cases, Read-only Manager.
 
+Validation-release response includes:
+
+- paged discrepancy rows with id, booking id, type, severity, component, amount/currency, status, owner, explanation, age, created/resolved timestamps;
+- summary counts and total amount calculated from the same filters;
+- pagination metadata.
+
+Errors:
+
+- `INVALID_REQUEST`
+
 ### `GET /discrepancies/{discrepancyId}`
 
 Returns evidence detail: related booking, expected component, actual records, matching attempts, source provenance, comments, and audit references.
+
+Validation-release detail is reduced to currently persisted/generated evidence:
+
+- discrepancy id, type, severity, status, owner, component, cause identity, explanation, amount/currency, age, created/resolved timestamps;
+- related booking id, source system id, external booking id, dates, lifecycle status, contracted amount/currency, and customer reference when linked.
+
+Missing or cross-organisation ids return `DISCREPANCY_NOT_FOUND`.
 
 ### `PATCH /discrepancies/{discrepancyId}`
 

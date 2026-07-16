@@ -507,6 +507,7 @@ Implementation note:
 - `V14__basic_discrepancy_generation.sql` creates `discrepancy` for VR-019.
 - Validation-release generated discrepancy types are `SHORT_SETTLEMENT` and `AMBIGUOUS_MATCH`.
 - The active unique index enforces deduplication on reconciliation rerun.
+- `V15__discrepancy_read_indexes.sql` adds queue and owner indexes for VR-020 list/detail reads.
 
 ### audit_event
 
@@ -556,6 +557,7 @@ Validation release indexes:
 - financial candidate search: `financial_event(organisation_id, booking_id, event_type, currency, effective_at)`;
 - unmatched events: `financial_event(organisation_id, booking_id) where booking_id is null`;
 - discrepancy queue: `discrepancy(organisation_id, status, type, severity, created_at)`;
+- discrepancy owner queue: `discrepancy(organisation_id, owner_user_id, status, created_at) where owner_user_id is not null`;
 - current reconciliation: `reconciliation_result(organisation_id, booking_id) where superseded_at is null`;
 - audit/timeline: `audit_event(organisation_id, target_type, target_id, created_at)`.
 
