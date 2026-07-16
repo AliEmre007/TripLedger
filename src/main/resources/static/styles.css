@@ -196,6 +196,49 @@ button {
     gap: 18px;
 }
 
+.workflow-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.workflow-step {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 4px 10px;
+    align-items: center;
+    min-height: 82px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    background: #ffffff;
+}
+
+.workflow-step span {
+    display: grid;
+    grid-row: span 2;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    background: #e0f2fe;
+    color: #075985;
+    font-weight: 800;
+}
+
+.workflow-step strong,
+.demo-card strong,
+.activity-item strong,
+.muted-line {
+    display: block;
+}
+
+.workflow-step small,
+.demo-card small,
+.activity-item small,
+.muted-line {
+    color: var(--muted);
+    line-height: 1.35;
+}
+
 .panel {
     display: grid;
     gap: 16px;
@@ -211,6 +254,13 @@ button {
 
 .panel h3 {
     font-size: 17px;
+}
+
+.button-row,
+.table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .primary-button,
@@ -240,6 +290,54 @@ button {
 .secondary-button:hover,
 .secondary-button:focus-visible {
     border-color: var(--focus);
+}
+
+.compact-button {
+    min-height: 32px;
+    padding: 5px 9px;
+    font-size: 13px;
+}
+
+.demo-action-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.demo-card {
+    display: grid;
+    gap: 7px;
+    min-height: 132px;
+    border: 1px solid var(--line);
+    background: #fbfdff;
+    color: var(--ink);
+    padding: 14px;
+    text-align: left;
+}
+
+.demo-card:hover,
+.demo-card:focus-visible {
+    border-color: var(--accent);
+    outline: 2px solid rgba(15, 118, 110, 0.14);
+}
+
+.demo-card strong {
+    font-size: 17px;
+}
+
+.activity-list {
+    display: grid;
+    gap: 10px;
+}
+
+.activity-item {
+    display: grid;
+    grid-template-columns: minmax(160px, 1fr) minmax(95px, auto) minmax(180px, 1.2fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid var(--line);
+    background: #ffffff;
 }
 
 .form-grid,
@@ -317,6 +415,15 @@ select:focus {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+}
+
+.compact-table {
+    font-size: 13px;
+}
+
+.booking-table th:last-child,
+.booking-table td:last-child {
+    width: 360px;
 }
 
 .data-table th,
@@ -402,7 +509,7 @@ select:focus {
     }
 
     .nav-list {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
     }
 
     .release-box {
@@ -411,8 +518,14 @@ select:focus {
 
     .summary-grid,
     .split-layout,
+    .workflow-strip,
+    .demo-action-grid,
     .form-grid,
     .filter-row {
+        grid-template-columns: 1fr;
+    }
+
+    .activity-item {
         grid-template-columns: 1fr;
     }
 }

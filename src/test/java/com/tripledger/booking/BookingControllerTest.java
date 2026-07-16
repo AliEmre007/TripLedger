@@ -47,6 +47,24 @@ class BookingControllerTest {
     @MockitoBean
     private BookingDetailService bookingDetailService;
 
+    @MockitoBean
+    private BookingListService bookingListService;
+
+    @Test
+    void returnsBookingList() throws Exception {
+        when(actorContextResolver.resolve(any())).thenReturn(actor());
+        when(bookingListService.list(eq(actor()))).thenReturn(List.of(summary()));
+
+        mockMvc.perform(get("/api/v1/bookings"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("X-Correlation-Id", not(blankOrNullString())))
+                .andExpect(jsonPath("$[0].id").value(BOOKING_ID.toString()))
+                .andExpect(jsonPath("$[0].externalBookingId").value("TL-BKG-1001"))
+                .andExpect(jsonPath("$[0].lifecycleStatus").value("CONFIRMED"))
+                .andExpect(jsonPath("$[0].contractedSellingAmount").value(1000.00))
+                .andExpect(jsonPath("$[0].sellingCurrency").value("EUR"));
+    }
+
     @Test
     void returnsBookingDetail() throws Exception {
         when(actorContextResolver.resolve(any())).thenReturn(actor());
@@ -121,6 +139,22 @@ class BookingControllerTest {
                 List.of(item),
                 NOW,
                 NOW
+        );
+    }
+
+    private BookingSummary summary() {
+        return new BookingSummary(
+                BOOKING_ID,
+                ORGANISATION_ID,
+                SOURCE_SYSTEM_ID,
+                "TL-BKG-1001",
+                LocalDate.parse("2026-07-01"),
+                LocalDate.parse("2026-08-01"),
+                LocalDate.parse("2026-08-07"),
+                BookingLifecycleStatus.CONFIRMED,
+                new BigDecimal("1000.00"),
+                "EUR",
+                "CUST-1001"
         );
     }
 

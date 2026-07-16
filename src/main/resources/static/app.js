@@ -3,10 +3,13 @@ const state = {
     titles: {
         status: "System status",
         actor: "Current actor",
+        demo: "Demo workflow",
         booking: "Booking detail",
         discrepancies: "Discrepancies",
         timeline: "Booking timeline"
-    }
+    },
+    demoSources: {},
+    bookings: []
 };
 
 const actorDefaults = {
@@ -24,6 +27,13 @@ function actorHeaders() {
         "X-TripLedger-Actor-Subject": element("actorSubject").value.trim(),
         "X-TripLedger-Organisation-Id": element("organisationId").value.trim(),
         "X-TripLedger-Mfa-Satisfied": element("mfaSatisfied").value
+    };
+}
+
+function jsonHeaders() {
+    return {
+        ...actorHeaders(),
+        "Content-Type": "application/json"
     };
 }
 
@@ -53,6 +63,14 @@ async function requestJson(path, options = {}) {
     }
 
     return body;
+}
+
+async function postJson(path, body) {
+    return requestJson(path, {
+        method: "POST",
+        headers: jsonHeaders(),
+        body: JSON.stringify(body)
+    });
 }
 
 function renderJson(target, value) {
@@ -133,6 +151,362 @@ async function loadActor() {
     try {
         const actor = await requestJson("/api/v1/me", {headers: actorHeaders()});
         renderJson(target, actor);
+    } catch (error) {
+        renderError(target, error);
+    }
+}
+
+async function loadDemoOverview() {
+    await Promise.all([
+        loadDemoSources(),
+        loadDemoBookings()
+    ]);
+}
+
+async function loadDemoSources() {
+    const target = element("demoSources");
+    target.textContent = "Loading source systems...";
+
+    try {
+        const systems = await requestJson("/api/v1/source-systems", {headers: actorHeaders()});
+        updateDemoSourceState(systems);
+        if (!systems || systems.length === 0) {
+            target.textContent = "No source systems found.";
+            return;
+        }
+
+        target.innerHTML = `
+            <table class="data-table compact-table">
+                <thead>
+                    <tr><th>Name</th><th>Category</th><th>Code</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    ${systems.map((system) => `
+                        <tr>
+                            <td>${escapeHtml(system.name)}</td>
+                            <td>${escapeHtml(system.category)}</td>
+                            <td>${escapeHtml(system.externalCode)}</td>
+                            <td><span class="status-pill ${system.active ? "status-up" : "status-down"}">${system.active ? "ACTIVE" : "INACTIVE"}</span></td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
+        `;
+    } catch (error) {
+        renderError(target, error);
+    }
+}
+
+async function prepareDemoSources() {
+    const target = element("demoActivity");
+    target.textContent = "Preparing demo source systems...";
+
+    try {
+        const systems = await ensureDemoSources();
+        await loadDemoSources();
+        renderDemoActivity([
+            {label: "OTA booking source", value: systems.ota.id},
+            {label: "Supplier source", value: systems.supplier.id},
+            {label: "Payment source", value: systems.payment.id}
+        ]);
+    } catch (error) {
+        renderError(target, error);
+    }
+}
+
+async function ensureDemoSources() {
+    const existing = await requestJson("/api/v1/source-systems", {headers: actorHeaders()});
+    updateDemoSourceState(existing);
+
+    const specs = {
+        ota: {
+            name: "Demo OTA",
+            category: "BOOKING_CHANNEL",
+            externalCode: "OTA-DEMO",
+            timeZone: "Europe/Istanbul",
+            active: true
+        },
+        supplier: {
+            name: "Demo Supplier",
+            category: "SUPPLIER",
+            externalCode: "SUPPLIER-DEMO",
+            timeZone: "Europe/Istanbul",
+            active: true
+        },
+        payment: {
+            name: "Demo Payments",
+            category: "PAYMENT_PROVIDER",
+            externalCode: "PAYMENT-DEMO",
+            timeZone: "Europe/Istanbul",
+            active: true
+        }
+    };
+
+    for (const [key, spec] of Object.entries(specs)) {
+        if (!state.demoSources[key]) {
+            state.demoSources[key] = await createSourceSystem(spec);
+        }
+    }
+
+    return state.demoSources;
+}
+
+async function createSourceSystem(spec) {
+    try {
+        return await postJson("/api/v1/source-systems", spec);
+    } catch (error) {
+        if (error.status !== 409) {
+            throw error;
+        }
+        const systems = await requestJson("/api/v1/source-systems", {headers: actorHeaders()});
+        const existing = systems.find((system) => system.externalCode === spec.externalCode);
+        if (!existing) {
+            throw error;
+        }
+        return existing;
+    }
+}
+
+function updateDemoSourceState(systems) {
+    state.demoSources = {
+        ota: (systems || []).find((system) => system.externalCode === "OTA-DEMO") || state.demoSources.ota,
+        supplier: (systems || []).find((system) => system.externalCode === "SUPPLIER-DEMO") || state.demoSources.supplier,
+        payment: (systems || []).find((system) => system.externalCode === "PAYMENT-DEMO") || state.demoSources.payment
+    };
+}
+
+async function runAllDemoImports() {
+    const target = element("demoActivity");
+    target.textContent = "Running demo imports...";
+
+    try {
+        const results = [];
+        results.push(await runDemoImport("bookings", false));
+        results.push(await runDemoImport("supplier", false));
+        results.push(await runDemoImport("financial", false));
+        renderImportResults(results);
+        await Promise.all([loadDemoSources(), loadDemoBookings(), loadDiscrepancies()]);
+    } catch (error) {
+        renderError(target, error);
+    }
+}
+
+async function runSingleDemoImport(kind) {
+    const target = element("demoActivity");
+    target.textContent = `Importing ${kind} demo data...`;
+
+    try {
+        const result = await runDemoImport(kind, true);
+        renderImportResults([result]);
+        await loadDemoBookings();
+    } catch (error) {
+        renderError(target, error);
+    }
+}
+
+async function runDemoImport(kind, renderResult) {
+    const sources = await ensureDemoSources();
+    const imports = {
+        bookings: {
+            label: "Bookings",
+            path: "/api/v1/booking-imports",
+            file: "/demo/bookings.csv",
+            fileName: "bookings.csv",
+            sourceSystemId: sources.ota.id
+        },
+        supplier: {
+            label: "Supplier obligations",
+            path: "/api/v1/supplier-obligation-imports",
+            file: "/demo/supplier_obligations.csv",
+            fileName: "supplier_obligations.csv",
+            sourceSystemId: sources.supplier.id
+        },
+        financial: {
+            label: "Financial events",
+            path: "/api/v1/financial-event-imports",
+            file: "/demo/financial_events.csv",
+            fileName: "financial_events.csv",
+            sourceSystemId: sources.ota.id
+        }
+    };
+    const config = imports[kind];
+    const csvContent = await fetchText(config.file);
+    const result = await postJson(config.path, {
+        sourceSystemId: config.sourceSystemId,
+        fileName: config.fileName,
+        fileChecksum: await checksum(csvContent),
+        csvContent
+    });
+    const summary = {label: config.label, result};
+    if (renderResult) {
+        renderImportResults([summary]);
+    }
+    return summary;
+}
+
+async function fetchText(path) {
+    const response = await fetch(path, {headers: {"Accept": "text/csv"}});
+    if (!response.ok) {
+        throw new Error(`Could not load ${path}`);
+    }
+    return response.text();
+}
+
+async function checksum(text) {
+    if (!window.crypto || !window.crypto.subtle) {
+        return `length:${text.length}`;
+    }
+    const data = new TextEncoder().encode(text);
+    const digest = await window.crypto.subtle.digest("SHA-256", data);
+    const hex = Array.from(new Uint8Array(digest))
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
+    return `sha256:${hex}`;
+}
+
+async function loadDemoBookings() {
+    const target = element("demoBookings");
+    target.textContent = "Loading bookings...";
+
+    try {
+        const bookings = await requestJson("/api/v1/bookings", {headers: actorHeaders()});
+        state.bookings = bookings || [];
+        if (state.bookings.length === 0) {
+            target.textContent = "No bookings found. Run the demo import first.";
+            return;
+        }
+
+        target.innerHTML = `
+            <table class="data-table booking-table">
+                <thead>
+                    <tr>
+                        <th>Booking</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Value</th>
+                        <th>Controls</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${state.bookings.map((booking) => demoBookingRow(booking)).join("")}
+                </tbody>
+            </table>
+        `;
+        bindBookingActions(target);
+    } catch (error) {
+        renderError(target, error);
+    }
+}
+
+function demoBookingRow(booking) {
+    const amount = booking.contractedSellingAmount ?? "";
+    const currency = booking.sellingCurrency || "";
+    return `
+        <tr>
+            <td>
+                <strong>${escapeHtml(booking.externalBookingId)}</strong>
+                <span class="muted-line">${escapeHtml(booking.customerReference || shortId(booking.id))}</span>
+            </td>
+            <td>${escapeHtml(booking.serviceStartDate || "")} to ${escapeHtml(booking.serviceEndDate || "")}</td>
+            <td><span class="status-pill">${escapeHtml(booking.lifecycleStatus || "UNKNOWN")}</span></td>
+            <td>${escapeHtml(amount)} ${escapeHtml(currency)}</td>
+            <td>
+                <div class="table-actions">
+                    <button class="secondary-button compact-button" data-booking-action="detail" data-booking-id="${escapeHtml(booking.id)}" type="button">Open</button>
+                    <button class="secondary-button compact-button" data-booking-action="timeline" data-booking-id="${escapeHtml(booking.id)}" type="button">Timeline</button>
+                    <button class="secondary-button compact-button" data-booking-action="economics" data-booking-id="${escapeHtml(booking.id)}" type="button">Economics</button>
+                    <button class="secondary-button compact-button" data-booking-action="matching" data-booking-id="${escapeHtml(booking.id)}" type="button">Match</button>
+                    <button class="secondary-button compact-button" data-booking-action="reconciliation" data-booking-id="${escapeHtml(booking.id)}" type="button">Reconcile</button>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
+function bindBookingActions(target) {
+    target.querySelectorAll("[data-booking-action]").forEach((button) => {
+        button.addEventListener("click", () => runBookingAction(button.dataset.bookingId, button.dataset.bookingAction));
+    });
+}
+
+async function runBookingAction(bookingId, action) {
+    const target = element("demoActivity");
+    target.textContent = `Running ${action} for ${shortId(bookingId)}...`;
+
+    try {
+        if (action === "detail") {
+            element("bookingId").value = bookingId;
+            switchView("booking");
+            await loadBooking();
+            return;
+        }
+        if (action === "timeline") {
+            element("timelineBookingId").value = bookingId;
+            switchView("timeline");
+            await loadTimeline();
+            return;
+        }
+
+        const paths = {
+            economics: `/api/v1/bookings/${encodeURIComponent(bookingId)}/economics/explanation`,
+            matching: `/api/v1/bookings/${encodeURIComponent(bookingId)}/matching-runs`,
+            reconciliation: `/api/v1/bookings/${encodeURIComponent(bookingId)}/reconciliation-runs`
+        };
+        const options = action === "economics" ? {headers: actorHeaders()} : {
+            method: "POST",
+            headers: actorHeaders()
+        };
+        const result = await requestJson(paths[action], options);
+        renderJson(target, result);
+    } catch (error) {
+        renderError(target, error);
+    }
+}
+
+function renderDemoActivity(items) {
+    element("demoActivity").innerHTML = `
+        <div class="activity-list">
+            ${items.map((item) => `
+                <div class="activity-item">
+                    <span>${escapeHtml(item.label)}</span>
+                    <strong>${escapeHtml(shortId(item.value))}</strong>
+                </div>
+            `).join("")}
+        </div>
+    `;
+}
+
+function renderImportResults(results) {
+    element("demoActivity").innerHTML = `
+        <div class="activity-list">
+            ${results.map(({label, result}) => `
+                <div class="activity-item">
+                    <span>${escapeHtml(label)}</span>
+                    <strong>${escapeHtml(result.status || "IMPORTED")}</strong>
+                    <small>accepted ${escapeHtml(result.acceptedCount ?? 0)} / rejected ${escapeHtml(result.rejectedCount ?? 0)} / duplicate ${escapeHtml(result.duplicateCount ?? 0)}</small>
+                    <button class="secondary-button compact-button" data-batch-id="${escapeHtml(result.importBatchId || result.id || "")}" type="button">Rows</button>
+                </div>
+            `).join("")}
+        </div>
+    `;
+    element("demoActivity").querySelectorAll("[data-batch-id]").forEach((button) => {
+        button.addEventListener("click", () => loadImportRows(button.dataset.batchId));
+    });
+}
+
+async function loadImportRows(batchId) {
+    const target = element("demoActivity");
+    if (!batchId) {
+        target.innerHTML = '<div class="notice">Import batch id was not returned.</div>';
+        return;
+    }
+
+    target.textContent = "Loading import row results...";
+    try {
+        const rows = await requestJson(`/api/v1/import-batches/${encodeURIComponent(batchId)}/row-results`, {
+            headers: actorHeaders()
+        });
+        renderJson(target, rows);
     } catch (error) {
         renderError(target, error);
     }
@@ -339,6 +713,8 @@ function refreshCurrentView() {
         loadStatus();
     } else if (state.view === "actor") {
         loadActor();
+    } else if (state.view === "demo") {
+        loadDemoOverview();
     } else if (state.view === "booking") {
         loadBooking();
     } else if (state.view === "discrepancies") {
@@ -355,6 +731,13 @@ function bindEvents() {
     element("refreshView").addEventListener("click", refreshCurrentView);
     element("saveActor").addEventListener("click", saveActorSettings);
     element("loadActor").addEventListener("click", loadActor);
+    element("prepareDemoSources").addEventListener("click", prepareDemoSources);
+    element("loadDemoSources").addEventListener("click", loadDemoSources);
+    element("runDemoImports").addEventListener("click", runAllDemoImports);
+    element("loadDemoBookings").addEventListener("click", loadDemoBookings);
+    document.querySelectorAll("[data-import-kind]").forEach((button) => {
+        button.addEventListener("click", () => runSingleDemoImport(button.dataset.importKind));
+    });
     element("loadBooking").addEventListener("click", loadBooking);
     element("loadDiscrepancies").addEventListener("click", loadDiscrepancies);
     element("loadDiscrepancyDetail").addEventListener("click", loadDiscrepancyDetail);

@@ -346,6 +346,37 @@ Rules:
 - Older source versions are rejected as `STALE_SOURCE_VERSION`.
 - Mixed accepted and rejected rows finish as `COMPLETED_WITH_ERRORS`.
 
+### `GET /api/v1/bookings`
+
+Returns a newest-first booking summary list inside the actor organisation.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
+Example response:
+
+```json
+[
+  {
+    "id": "uuid",
+    "organisationId": "uuid",
+    "sourceSystemId": "uuid",
+    "externalBookingId": "TL-BKG-1001",
+    "bookingDate": "2026-07-01",
+    "serviceStartDate": "2026-08-01",
+    "serviceEndDate": "2026-08-07",
+    "lifecycleStatus": "CONFIRMED",
+    "contractedSellingAmount": 1000.00,
+    "sellingCurrency": "EUR",
+    "customerReference": "CUST-1001"
+  }
+]
+```
+
 ### `GET /api/v1/bookings/{bookingId}`
 
 Returns canonical booking detail for one booking inside the actor organisation.

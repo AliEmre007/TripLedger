@@ -16,4 +16,6 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     );
 
     List<Booking> findAllByOrganisationIdAndExternalBookingId(UUID organisationId, String externalBookingId);
+
+    List<Booking> findAllByOrganisationIdOrderByCreatedAtDesc(UUID organisationId);
 }

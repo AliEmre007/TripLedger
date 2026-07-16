@@ -19,6 +19,7 @@
         <nav class="nav-list">
             <button class="nav-item active" data-view="status" type="button">Status</button>
             <button class="nav-item" data-view="actor" type="button">Actor</button>
+            <button class="nav-item" data-view="demo" type="button">Demo</button>
             <button class="nav-item" data-view="booking" type="button">Booking</button>
             <button class="nav-item" data-view="discrepancies" type="button">Discrepancies</button>
             <button class="nav-item" data-view="timeline" type="button">Timeline</button>
@@ -109,6 +110,77 @@
                     <button id="loadActor" class="secondary-button" type="button">Load</button>
                 </div>
                 <div id="actorResult" class="result-box">No actor loaded.</div>
+            </section>
+        </section>
+
+        <section class="view" id="demoView" aria-labelledby="viewTitle">
+            <div class="workflow-strip" aria-label="Demo workflow">
+                <div class="workflow-step">
+                    <span>1</span>
+                    <strong>Sources</strong>
+                    <small>Create demo data providers</small>
+                </div>
+                <div class="workflow-step">
+                    <span>2</span>
+                    <strong>Imports</strong>
+                    <small>Load booking, supplier, and finance CSVs</small>
+                </div>
+                <div class="workflow-step">
+                    <span>3</span>
+                    <strong>Bookings</strong>
+                    <small>Review canonical records</small>
+                </div>
+                <div class="workflow-step">
+                    <span>4</span>
+                    <strong>Controls</strong>
+                    <small>Run matching, economics, and reconciliation</small>
+                </div>
+            </div>
+
+            <div class="split-layout">
+                <section class="panel">
+                    <div class="panel-header">
+                        <h3>Demo data workflow</h3>
+                        <div class="button-row">
+                            <button id="prepareDemoSources" class="secondary-button" type="button">Prepare sources</button>
+                            <button id="runDemoImports" class="primary-button" type="button">Import demo data</button>
+                        </div>
+                    </div>
+                    <div class="demo-action-grid">
+                        <button class="demo-card" data-import-kind="bookings" type="button">
+                            <span class="label">CSV import</span>
+                            <strong>Bookings</strong>
+                            <small>Creates canonical bookings from the OTA file.</small>
+                        </button>
+                        <button class="demo-card" data-import-kind="supplier" type="button">
+                            <span class="label">CSV import</span>
+                            <strong>Supplier costs</strong>
+                            <small>Adds expected supplier obligations for each booking.</small>
+                        </button>
+                        <button class="demo-card" data-import-kind="financial" type="button">
+                            <span class="label">CSV import</span>
+                            <strong>Financial events</strong>
+                            <small>Adds payment and settlement evidence.</small>
+                        </button>
+                    </div>
+                    <div id="demoActivity" class="result-box">No demo action has run yet.</div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h3>Source systems</h3>
+                        <button id="loadDemoSources" class="secondary-button" type="button">Load</button>
+                    </div>
+                    <div id="demoSources" class="table-empty">No source systems loaded.</div>
+                </section>
+            </div>
+
+            <section class="panel">
+                <div class="panel-header">
+                    <h3>Imported bookings</h3>
+                    <button id="loadDemoBookings" class="secondary-button" type="button">Load</button>
+                </div>
+                <div id="demoBookings" class="table-empty">No bookings loaded.</div>
             </section>
         </section>
 
