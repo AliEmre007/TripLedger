@@ -73,6 +73,10 @@ Booking economics reads use `PROTECTED_READ`, are filtered by organisation, and 
 
 Booking economics explanation reads use `PROTECTED_READ` and are filtered by organisation. They expose source identities, source record ids, formula references, currencies, and exchange-rate evidence, but not raw imported payload content.
 
+Deterministic matching runs require `FINANCIAL_ACTION`, are scoped to the actor organisation, and never allocate an already allocated financial event. Ambiguous candidates create review evidence without allocating money.
+
+Reconciliation runs require `FINANCIAL_ACTION`, are scoped to the actor organisation, and persist derived state without modifying accepted financial events. Prior reconciliation results are superseded rather than deleted.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

@@ -698,6 +698,89 @@ Errors:
 - `BOOKING_NOT_FOUND`
 - `UNAUTHORISED_FINANCIAL_ACTION`
 
+### `POST /api/v1/bookings/{bookingId}/matching-runs`
+
+Runs the validation-release deterministic one-to-one matcher for one booking.
+
+Roles:
+
+- Administrator.
+- Finance.
+
+Example response:
+
+```json
+{
+  "bookingId": "uuid",
+  "status": "ACTIVE",
+  "ruleCode": "EXACT_BOOKING_AMOUNT",
+  "matchId": "uuid",
+  "financialEventId": "uuid",
+  "amount": 950.00,
+  "currency": "EUR",
+  "exchangeRateId": null,
+  "originalAmount": 950.00,
+  "originalCurrency": "EUR",
+  "reason": null
+}
+```
+
+Rules:
+
+- The matcher compares the booking expected customer receivable with compatible received financial events.
+- Compatible validation-release event types are `CUSTOMER_PAYMENT` and `CHANNEL_SETTLEMENT`.
+- Direct matches require the same currency and exact amount.
+- Cross-currency matches require exchange-rate evidence whose converted target amount equals the expected amount.
+- Already allocated financial events are ignored.
+- Exactly one candidate creates an `ACTIVE` automatic match and allocation.
+- Multiple candidates create a `REVIEW_REQUIRED` match record with `AMBIGUOUS_MATCH` and no allocation.
+- No valid candidate returns `REVIEW_REQUIRED` without allocation.
+
+Errors:
+
+- `BOOKING_NOT_FOUND`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
+### `POST /api/v1/bookings/{bookingId}/reconciliation-runs`
+
+Runs the reconciliation state engine for one booking.
+
+Roles:
+
+- Administrator.
+- Finance.
+
+Example response:
+
+```json
+{
+  "id": "uuid",
+  "bookingId": "uuid",
+  "calculationSnapshotId": "uuid",
+  "ruleVersion": "reconciliation-v1",
+  "status": "RECONCILED",
+  "expectedAmount": 950.00,
+  "matchedAmount": 950.00,
+  "varianceAmount": 0.00,
+  "currency": "EUR",
+  "createdAt": "2026-07-16T07:00:00Z"
+}
+```
+
+Rules:
+
+- `NOT_READY` is returned when required economics are incomplete.
+- `RECONCILED` requires the expected customer receivable to be fully matched.
+- `PARTIALLY_RECONCILED` is returned when some amount is matched and some remains unmatched.
+- `DISCREPANT` is returned when current match evidence includes a review-required state such as `AMBIGUOUS_MATCH`.
+- A new run supersedes the previous current reconciliation result, preserving prior results for audit.
+- Re-running unchanged inputs produces equivalent status and totals and does not create duplicate financial allocations.
+
+Errors:
+
+- `BOOKING_NOT_FOUND`
+- `UNAUTHORISED_FINANCIAL_ACTION`
+
 ### Actuator
 
 - `GET /actuator/health`

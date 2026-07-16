@@ -423,6 +423,12 @@ Implementation note:
 | removed_at | timestamptz | nullable |
 | reason | text | nullable |
 
+Implementation note:
+
+- `V12__deterministic_matching.sql` implements this table as `booking_match` to avoid SQL keyword ambiguity.
+- Validation-release automatic matching uses `match_type = AUTOMATIC`.
+- Ambiguous candidates are recorded with `status = REVIEW_REQUIRED` and `rule_code = AMBIGUOUS_MATCH`.
+
 ### match_allocation
 
 | Column | Type | Constraint |
@@ -434,10 +440,14 @@ Implementation note:
 | amount | numeric(19,4) | not null |
 | currency | char(3) | not null |
 | active | boolean | not null default true |
+| exchange_rate_id | uuid | nullable |
+| original_amount | numeric(19,4) | nullable |
+| original_currency | char(3) | nullable |
 
 Checks:
 
 - `amount > 0`
+- active automatic one-to-one allocations store the compared amount/currency and preserve original event amount/currency when cross-currency evidence is used.
 
 Concurrency rule:
 
@@ -462,6 +472,12 @@ Concurrency rule:
 Index:
 
 - `(organisation_id, booking_id, superseded_at)` for current result lookup.
+
+Implementation note:
+
+- `V13__reconciliation_state_engine.sql` creates `reconciliation_result` for VR-018.
+- Each run writes a new result and supersedes the previous current result for the booking.
+- Validation-release statuses are `NOT_READY`, `PARTIALLY_RECONCILED`, `RECONCILED`, and `DISCREPANT`.
 
 ### discrepancy
 

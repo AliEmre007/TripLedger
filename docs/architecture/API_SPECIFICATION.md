@@ -740,7 +740,66 @@ Requests reconciliation for one booking.
 
 Roles: Administrator, Finance.
 
-Validation release may call this automatically after imports; explicit rerun can remain internal if not exposed in UI.
+Response:
+
+```json
+{
+  "id": "uuid",
+  "bookingId": "uuid",
+  "calculationSnapshotId": "uuid",
+  "ruleVersion": "reconciliation-v1",
+  "status": "RECONCILED",
+  "expectedAmount": "950.00",
+  "matchedAmount": "950.00",
+  "varianceAmount": "0.00",
+  "currency": "EUR",
+  "createdAt": "2026-07-16T07:00:00Z"
+}
+```
+
+Statuses:
+
+- `NOT_READY`
+- `PARTIALLY_RECONCILED`
+- `RECONCILED`
+- `DISCREPANT`
+
+Validation release may call this automatically after imports; the explicit endpoint exists for deterministic reruns and evidence.
+
+### `POST /bookings/{bookingId}/matching-runs`
+
+Runs the deterministic one-to-one matcher for one booking.
+
+Roles: Administrator, Finance.
+
+Response:
+
+```json
+{
+  "bookingId": "uuid",
+  "status": "ACTIVE",
+  "ruleCode": "EXACT_BOOKING_AMOUNT",
+  "matchId": "uuid",
+  "financialEventId": "uuid",
+  "amount": "950.00",
+  "currency": "EUR",
+  "exchangeRateId": null,
+  "originalAmount": "950.00",
+  "originalCurrency": "EUR",
+  "reason": null
+}
+```
+
+Rules:
+
+- Exactly one valid deterministic candidate creates an active automatic match.
+- Multiple candidates create `REVIEW_REQUIRED` with `AMBIGUOUS_MATCH`.
+- Cross-currency candidates require exchange-rate evidence.
+
+Errors:
+
+- `BOOKING_NOT_FOUND`
+- `UNAUTHORISED_FINANCIAL_ACTION`
 
 ### `POST /matches`
 
