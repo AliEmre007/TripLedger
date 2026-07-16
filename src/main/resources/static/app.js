@@ -18,6 +18,33 @@ const actorDefaults = {
     mfaSatisfied: "true"
 };
 
+const scenarioLabels = {
+    "DEMO-EXACT-1001": {
+        label: "Exact match",
+        description: "Clean case: expected sale and matched payment should agree."
+    },
+    "DEMO-OTA-1002": {
+        label: "OTA settlement",
+        description: "Booking paid through a channel settlement with deductions."
+    },
+    "DEMO-CANCEL-1003": {
+        label: "Cancellation/refund",
+        description: "Cancelled booking used to inspect refund behavior."
+    },
+    "DEMO-AMB-1004": {
+        label: "Ambiguous payment",
+        description: "Payment evidence may not identify one booking cleanly."
+    },
+    "DEMO-FX-1005": {
+        label: "FX case",
+        description: "Booking uses currency conversion evidence."
+    },
+    "DEMO-SHORT-1006": {
+        label: "Short settlement",
+        description: "Matched money may be lower than expected."
+    }
+};
+
 function element(id) {
     return document.getElementById(id);
 }
@@ -81,11 +108,29 @@ function renderJson(target, value) {
     target.appendChild(pre);
 }
 
+function jsonDetails(title, value) {
+    return `
+        <details class="technical-details">
+            <summary>${escapeHtml(title)}</summary>
+            <pre class="json-view">${escapeHtml(JSON.stringify(value, null, 2))}</pre>
+        </details>
+    `;
+}
+
 function renderError(target, error) {
     renderJson(target, {
         status: error.status || "REQUEST_FAILED",
         error: error.body || {message: error.message}
     });
+}
+
+function renderInstruction(target, title, message) {
+    target.innerHTML = `
+        <div class="instruction-box">
+            <strong>${escapeHtml(title)}</strong>
+            <span>${escapeHtml(message)}</span>
+        </div>
+    `;
 }
 
 function statusClass(status) {
@@ -204,11 +249,18 @@ async function prepareDemoSources() {
     try {
         const systems = await ensureDemoSources();
         await loadDemoSources();
-        renderDemoActivity([
-            {label: "OTA booking source", value: systems.ota.id},
-            {label: "Supplier source", value: systems.supplier.id},
-            {label: "Payment source", value: systems.payment.id}
-        ]);
+        target.innerHTML = `
+            <div class="summary-callout status-up">
+                <strong>Demo sources are ready.</strong>
+                <span>TripLedger now knows which demo systems send bookings, supplier costs, and payment evidence.</span>
+            </div>
+            <div class="activity-list">
+                ${sourceReadyItem("OTA booking source", systems.ota)}
+                ${sourceReadyItem("Supplier source", systems.supplier)}
+                ${sourceReadyItem("Payment source", systems.payment)}
+            </div>
+            <div class="next-action">Next: click Import demo data to load the bundled CSV fixtures.</div>
+        `;
     } catch (error) {
         renderError(target, error);
     }
@@ -372,15 +424,24 @@ async function loadDemoBookings() {
         const bookings = await requestJson("/api/v1/bookings", {headers: actorHeaders()});
         state.bookings = bookings || [];
         if (state.bookings.length === 0) {
-            target.textContent = "No bookings found. Run the demo import first.";
+            renderInstruction(
+                    target,
+                    "No bookings found.",
+                    "Run Import demo data first, then this table will show booking references, service dates, status, value, and action buttons."
+            );
             return;
         }
 
         target.innerHTML = `
+            <div class="summary-callout">
+                <strong>${escapeHtml(state.bookings.length)} demo bookings are available.</strong>
+                <span>Select a row action to inspect the booking, explain economics, run matching, or reconcile money.</span>
+            </div>
             <table class="data-table booking-table">
                 <thead>
                     <tr>
                         <th>Booking</th>
+                        <th>Scenario</th>
                         <th>Service</th>
                         <th>Status</th>
                         <th>Value</th>
@@ -401,11 +462,19 @@ async function loadDemoBookings() {
 function demoBookingRow(booking) {
     const amount = booking.contractedSellingAmount ?? "";
     const currency = booking.sellingCurrency || "";
+    const scenario = scenarioLabels[booking.externalBookingId] || {
+        label: "Demo booking",
+        description: "Imported booking record."
+    };
     return `
         <tr>
             <td>
                 <strong>${escapeHtml(booking.externalBookingId)}</strong>
                 <span class="muted-line">${escapeHtml(booking.customerReference || shortId(booking.id))}</span>
+            </td>
+            <td>
+                <span class="scenario-pill">${escapeHtml(scenario.label)}</span>
+                <span class="muted-line">${escapeHtml(scenario.description)}</span>
             </td>
             <td>${escapeHtml(booking.serviceStartDate || "")} to ${escapeHtml(booking.serviceEndDate || "")}</td>
             <td><span class="status-pill">${escapeHtml(booking.lifecycleStatus || "UNKNOWN")}</span></td>
@@ -457,41 +526,196 @@ async function runBookingAction(bookingId, action) {
             headers: actorHeaders()
         };
         const result = await requestJson(paths[action], options);
-        renderJson(target, result);
+        renderControlResult(target, action, result);
     } catch (error) {
         renderError(target, error);
     }
 }
 
-function renderDemoActivity(items) {
-    element("demoActivity").innerHTML = `
-        <div class="activity-list">
-            ${items.map((item) => `
-                <div class="activity-item">
-                    <span>${escapeHtml(item.label)}</span>
-                    <strong>${escapeHtml(shortId(item.value))}</strong>
-                </div>
-            `).join("")}
+function sourceReadyItem(label, source) {
+    return `
+        <div class="activity-item">
+            <span>${escapeHtml(label)}</span>
+            <strong>${escapeHtml(source.externalCode)}</strong>
+            <small>${escapeHtml(source.category)} source is active.</small>
+            <span class="status-pill status-up">READY</span>
         </div>
     `;
 }
 
 function renderImportResults(results) {
+    const accepted = sumResults(results, "acceptedCount");
+    const rejected = sumResults(results, "rejectedCount");
+    const duplicates = sumResults(results, "duplicateCount");
+    const title = rejected > 0 ? "Import finished with rejected rows."
+        : accepted > 0 ? "Demo data imported successfully."
+            : "Demo data was already imported.";
+    const message = rejected > 0
+        ? `${rejected} row(s) need review before the dataset is fully clean.`
+        : accepted > 0
+            ? `${accepted} new row(s) were accepted. ${duplicates} duplicate row(s) were safely skipped.`
+            : `${duplicates} row(s) already existed, so TripLedger did not create duplicate records.`;
+
     element("demoActivity").innerHTML = `
+        <div class="summary-callout ${rejected > 0 ? "status-down" : "status-up"}">
+            <strong>${escapeHtml(title)}</strong>
+            <span>${escapeHtml(message)}</span>
+        </div>
         <div class="activity-list">
             ${results.map(({label, result}) => `
                 <div class="activity-item">
                     <span>${escapeHtml(label)}</span>
                     <strong>${escapeHtml(result.status || "IMPORTED")}</strong>
-                    <small>accepted ${escapeHtml(result.acceptedCount ?? 0)} / rejected ${escapeHtml(result.rejectedCount ?? 0)} / duplicate ${escapeHtml(result.duplicateCount ?? 0)}</small>
+                    <small>${escapeHtml(importResultSentence(label, result))}</small>
                     <button class="secondary-button compact-button" data-batch-id="${escapeHtml(result.importBatchId || result.id || "")}" type="button">Rows</button>
                 </div>
             `).join("")}
         </div>
+        <div class="next-action">Next: choose a booking below, then run Economics, Match, and Reconcile.</div>
     `;
     element("demoActivity").querySelectorAll("[data-batch-id]").forEach((button) => {
         button.addEventListener("click", () => loadImportRows(button.dataset.batchId));
     });
+}
+
+function renderControlResult(target, action, result) {
+    if (action === "economics") {
+        renderEconomicsSummary(target, result);
+    } else if (action === "matching") {
+        renderMatchingSummary(target, result);
+    } else if (action === "reconciliation") {
+        renderReconciliationSummary(target, result);
+    } else {
+        renderJson(target, result);
+    }
+}
+
+function renderEconomicsSummary(target, result) {
+    const components = result.components || [];
+    const sale = sumComponents(components, "CONTRACTED_GROSS_SALE");
+    const supplierCost = sumComponents(components, "ACTIVE_SUPPLIER_COST");
+    const deductions = sumComponents(components, "EXPECTED_CHANNEL_COMMISSION")
+        + sumComponents(components, "EXPECTED_PAYMENT_FEE");
+    const margin = sale - deductions - supplierCost;
+    const currency = result.currency || firstCurrency(components) || "";
+
+    target.innerHTML = `
+        <div class="control-summary">
+            <div class="summary-callout">
+                <strong>Economics explained for this booking.</strong>
+                <span>TripLedger calculated sale, expected deductions, supplier cost, and estimated margin from stored evidence.</span>
+            </div>
+            <div class="summary-metrics">
+                ${summaryMetric("Sale", money(sale, currency))}
+                ${summaryMetric("Deductions", money(deductions, currency))}
+                ${summaryMetric("Supplier cost", money(supplierCost, currency))}
+                ${summaryMetric("Estimated margin", money(margin, currency))}
+            </div>
+            ${jsonDetails("Technical economics evidence", result)}
+        </div>
+    `;
+}
+
+function renderMatchingSummary(target, result) {
+    const matched = result.status === "ACTIVE" && result.matchId;
+    target.innerHTML = `
+        <div class="control-summary">
+            <div class="summary-callout ${matched ? "status-up" : "status-down"}">
+                <strong>${escapeHtml(matched ? "A financial event was matched." : "No active match was created.")}</strong>
+                <span>${escapeHtml(matchingSentence(result))}</span>
+            </div>
+            <div class="summary-metrics">
+                ${summaryMetric("Rule", result.ruleCode || "UNKNOWN")}
+                ${summaryMetric("Amount", money(result.amount, result.currency))}
+                ${summaryMetric("Status", result.status || "UNKNOWN")}
+            </div>
+            ${jsonDetails("Technical matching result", result)}
+        </div>
+    `;
+}
+
+function renderReconciliationSummary(target, result) {
+    const reconciled = result.status === "RECONCILED";
+    target.innerHTML = `
+        <div class="control-summary">
+            <div class="summary-callout ${reconciled ? "status-up" : "status-down"}">
+                <strong>${escapeHtml(reconciled ? "Booking is reconciled." : "Booking is not fully reconciled.")}</strong>
+                <span>${escapeHtml(reconciliationSentence(result))}</span>
+            </div>
+            <div class="summary-metrics">
+                ${summaryMetric("Expected", money(result.expectedAmount, result.currency))}
+                ${summaryMetric("Matched", money(result.matchedAmount, result.currency))}
+                ${summaryMetric("Variance", money(result.varianceAmount, result.currency))}
+                ${summaryMetric("Status", result.status || "UNKNOWN")}
+            </div>
+            ${jsonDetails("Technical reconciliation result", result)}
+        </div>
+    `;
+}
+
+function importResultSentence(label, result) {
+    const accepted = result.acceptedCount ?? 0;
+    const rejected = result.rejectedCount ?? 0;
+    const duplicate = result.duplicateCount ?? 0;
+    if (rejected > 0) {
+        return `${label}: ${accepted} accepted, ${rejected} rejected, ${duplicate} duplicates skipped.`;
+    }
+    if (accepted > 0) {
+        return `${label}: ${accepted} new row(s) accepted and ${duplicate} duplicate row(s) skipped.`;
+    }
+    if (duplicate > 0) {
+        return `${label}: all ${duplicate} row(s) were already present, so no duplicates were created.`;
+    }
+    return `${label}: no rows changed.`;
+}
+
+function matchingSentence(result) {
+    if (result.status === "ACTIVE" && result.matchId) {
+        return `Matched ${money(result.amount, result.currency)} using rule ${result.ruleCode || "UNKNOWN"}.`;
+    }
+    return result.reason || "TripLedger did not find enough evidence for an active match.";
+}
+
+function reconciliationSentence(result) {
+    if (result.status === "RECONCILED") {
+        return `Expected and matched money agree. Variance is ${money(result.varianceAmount, result.currency)}.`;
+    }
+    return `Expected ${money(result.expectedAmount, result.currency)}, matched ${money(result.matchedAmount, result.currency)}, variance ${money(result.varianceAmount, result.currency)}.`;
+}
+
+function summaryMetric(label, value) {
+    return `
+        <div class="summary-metric">
+            <span>${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value)}</strong>
+        </div>
+    `;
+}
+
+function sumResults(results, field) {
+    return results.reduce((total, item) => total + (item.result[field] || 0), 0);
+}
+
+function sumComponents(components, type) {
+    return components
+        .filter((component) => component.componentType === type)
+        .reduce((total, component) => total + Number(component.amount || 0), 0);
+}
+
+function firstCurrency(components) {
+    const component = components.find((item) => item.currency);
+    return component ? component.currency : "";
+}
+
+function money(amount, currency) {
+    if (amount === null || amount === undefined || Number.isNaN(Number(amount))) {
+        return currency || "UNKNOWN";
+    }
+    const rounded = Number(amount).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+    return `${rounded} ${currency || ""}`.trim();
 }
 
 async function loadImportRows(batchId) {
