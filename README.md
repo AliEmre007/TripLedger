@@ -20,11 +20,13 @@ Maven does not need to be installed locally when using the Docker commands below
 cp .env.example .env
 docker compose run --rm test mvn -B test
 docker compose up --build
+make seed-local
 make smoke
 ```
 
 Open:
 
+- validation console: http://localhost:18080/
 - application health: http://localhost:18080/api/v1/health
 - liveness: http://localhost:18080/api/v1/health/live
 - readiness: http://localhost:18080/api/v1/health/ready
@@ -52,6 +54,7 @@ make verify     # run tests and checkstyle in Maven container
 make demo-validate # validate the end-to-end demo dataset
 make run        # build and run app + PostgreSQL
 make smoke      # run local liveness/readiness smoke checks
+make seed-local # seed local validation organisation and actors
 make backup-local   # create local PostgreSQL dump and manifest
 make restore-local  # restore BACKUP_DIR after RESTORE_CONFIRM=restore-local
 make stop       # stop services
@@ -110,6 +113,7 @@ Included now:
 - Correlation id response header and log MDC.
 - Health endpoint at `/api/v1/health`.
 - Liveness/readiness endpoints and Actuator health/metrics endpoints.
+- Static validation console at `/`.
 - Initial documentation for contributors, agents, security, tests, and operations.
 
 ## Documentation Map
@@ -126,6 +130,7 @@ Included now:
 | [Test strategy](docs/operations/TEST_STRATEGY.md) | Test layers, commands, fixture approach |
 | [Runbook](docs/operations/RUNBOOK.md) | Local run, health checks, backup/restore, incident steps |
 | [Validation demo](docs/operations/VALIDATION_DEMO.md) | End-to-end synthetic demo dataset and evidence path |
+| [Validation console](docs/operations/VALIDATION_CONSOLE.md) | Static local console and actor seed instructions |
 | [Stage 8 release readiness](docs/stages/STAGE_8_QUALITY_ASSURANCE_RELEASE_READINESS.md) | QA, release checklist, rollback plan, known risks |
 | [Stage 9 operations](docs/stages/STAGE_9_DEPLOYMENT_AND_OPERATIONS.md) | Deployment and operations evidence for the validation release |
 | [v0.1.0 validation release](docs/operations/releases/V0_1_0_VALIDATION.md) | Release notes, evidence, included scope, and operating limits |

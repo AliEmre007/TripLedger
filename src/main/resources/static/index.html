@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TripLedger Validation Console</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar" aria-label="Primary">
+        <div class="brand">
+            <span class="brand-mark" aria-hidden="true">TL</span>
+            <div>
+                <h1>TripLedger</h1>
+                <p>v0.1 validation</p>
+            </div>
+        </div>
+        <nav class="nav-list">
+            <button class="nav-item active" data-view="status" type="button">Status</button>
+            <button class="nav-item" data-view="actor" type="button">Actor</button>
+            <button class="nav-item" data-view="booking" type="button">Booking</button>
+            <button class="nav-item" data-view="discrepancies" type="button">Discrepancies</button>
+            <button class="nav-item" data-view="timeline" type="button">Timeline</button>
+        </nav>
+        <div class="release-box">
+            <span class="label">Release</span>
+            <strong>v0.1.0-validation</strong>
+            <span>Synthetic data only</span>
+        </div>
+    </aside>
+
+    <main class="workspace">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Validation console</p>
+                <h2 id="viewTitle">System status</h2>
+            </div>
+            <button id="refreshView" class="secondary-button" type="button">Refresh</button>
+        </header>
+
+        <section class="view active" id="statusView" aria-labelledby="viewTitle">
+            <div class="summary-grid">
+                <article class="metric-tile">
+                    <span class="label">Application</span>
+                    <strong id="appStatus">Unknown</strong>
+                    <span id="appVersion">Version pending</span>
+                </article>
+                <article class="metric-tile">
+                    <span class="label">Readiness</span>
+                    <strong id="readyStatus">Unknown</strong>
+                    <span id="readyTimestamp">Not checked</span>
+                </article>
+                <article class="metric-tile">
+                    <span class="label">Actuator</span>
+                    <strong id="actuatorStatus">Unknown</strong>
+                    <span>/actuator/health</span>
+                </article>
+            </div>
+            <div class="split-layout">
+                <section class="panel">
+                    <div class="panel-header">
+                        <h3>Readiness checks</h3>
+                    </div>
+                    <div id="readinessChecks" class="table-empty">No readiness data loaded.</div>
+                </section>
+                <section class="panel">
+                    <div class="panel-header">
+                        <h3>Runtime links</h3>
+                    </div>
+                    <div class="link-list">
+                        <a href="/api/v1/health" target="_blank" rel="noreferrer">Application health</a>
+                        <a href="/api/v1/health/ready" target="_blank" rel="noreferrer">Readiness JSON</a>
+                        <a href="/actuator/health" target="_blank" rel="noreferrer">Actuator health</a>
+                        <a href="/actuator/metrics" target="_blank" rel="noreferrer">Actuator metrics</a>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <section class="view" id="actorView" aria-labelledby="viewTitle">
+            <section class="panel">
+                <div class="panel-header">
+                    <h3>Validation actor headers</h3>
+                    <button id="saveActor" class="primary-button" type="button">Save</button>
+                </div>
+                <form class="form-grid" id="actorForm">
+                    <label>
+                        Actor subject
+                        <input id="actorSubject" name="actorSubject" autocomplete="off" placeholder="local-admin">
+                    </label>
+                    <label>
+                        Organisation id
+                        <input id="organisationId" name="organisationId" autocomplete="off"
+                               placeholder="11111111-1111-1111-1111-111111111111">
+                    </label>
+                    <label>
+                        MFA satisfied
+                        <select id="mfaSatisfied" name="mfaSatisfied">
+                            <option value="true">true</option>
+                            <option value="false">false</option>
+                        </select>
+                    </label>
+                </form>
+            </section>
+            <section class="panel">
+                <div class="panel-header">
+                    <h3>Current actor</h3>
+                    <button id="loadActor" class="secondary-button" type="button">Load</button>
+                </div>
+                <div id="actorResult" class="result-box">No actor loaded.</div>
+            </section>
+        </section>
+
+        <section class="view" id="bookingView" aria-labelledby="viewTitle">
+            <section class="panel">
+                <div class="panel-header">
+                    <h3>Booking detail</h3>
+                    <button id="loadBooking" class="primary-button" type="button">Load</button>
+                </div>
+                <label class="single-field">
+                    Booking id
+                    <input id="bookingId" autocomplete="off" placeholder="UUID">
+                </label>
+                <div id="bookingResult" class="result-box">No booking loaded.</div>
+            </section>
+        </section>
+
+        <section class="view" id="discrepanciesView" aria-labelledby="viewTitle">
+            <section class="panel">
+                <div class="panel-header">
+                    <h3>Discrepancy queue</h3>
+                    <button id="loadDiscrepancies" class="primary-button" type="button">Load</button>
+                </div>
+                <div class="filter-row">
+                    <label>
+                        Status
+                        <select id="discrepancyStatus">
+                            <option value="">Any</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="RESOLVED">Resolved</option>
+                        </select>
+                    </label>
+                    <label>
+                        Severity
+                        <select id="discrepancySeverity">
+                            <option value="">Any</option>
+                            <option value="INFO">Info</option>
+                            <option value="WARNING">Warning</option>
+                            <option value="CRITICAL">Critical</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="discrepancyList" class="table-empty">No discrepancies loaded.</div>
+            </section>
+            <section class="panel">
+                <div class="panel-header">
+                    <h3>Discrepancy detail</h3>
+                    <button id="loadDiscrepancyDetail" class="secondary-button" type="button">Load</button>
+                </div>
+                <label class="single-field">
+                    Discrepancy id
+                    <input id="discrepancyId" autocomplete="off" placeholder="UUID">
+                </label>
+                <div id="discrepancyDetail" class="result-box">No discrepancy loaded.</div>
+            </section>
+        </section>
+
+        <section class="view" id="timelineView" aria-labelledby="viewTitle">
+            <section class="panel">
+                <div class="panel-header">
+                    <h3>Booking timeline</h3>
+                    <button id="loadTimeline" class="primary-button" type="button">Load</button>
+                </div>
+                <label class="single-field">
+                    Booking id
+                    <input id="timelineBookingId" autocomplete="off" placeholder="UUID">
+                </label>
+                <div id="timelineResult" class="timeline-empty">No timeline loaded.</div>
+            </section>
+        </section>
+    </main>
+</div>
+
+<script src="/app.js" defer></script>
+</body>
+</html>

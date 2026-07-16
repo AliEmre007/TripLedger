@@ -49,6 +49,7 @@ This directory keeps project knowledge out of the repository root while preservi
 - [Test strategy](operations/TEST_STRATEGY.md)
 - [Runbook](operations/RUNBOOK.md)
 - [Validation demo](operations/VALIDATION_DEMO.md)
+- [Validation console](operations/VALIDATION_CONSOLE.md)
 - [Deployment record](operations/DEPLOYMENT_RECORD.md)
 - [Observability operations](operations/OBSERVABILITY_OPERATIONS.md)
 - [Incident record template](operations/INCIDENT_RECORD_TEMPLATE.md)

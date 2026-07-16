@@ -1,4 +1,4 @@
-.PHONY: copy-env test verify demo-validate run smoke backup-local restore-local stop logs clean
+.PHONY: copy-env test verify demo-validate run smoke seed-local backup-local restore-local stop logs clean
 
 copy-env:
 	cp .env.example .env
@@ -23,6 +23,9 @@ smoke:
 	curl -fsS "http://localhost:$${port}/actuator/health/liveness" >/dev/null; \
 	curl -fsS "http://localhost:$${port}/actuator/health/readiness" >/dev/null; \
 	echo "Smoke checks passed on port $${port}"
+
+seed-local:
+	./scripts/seed-local-validation.sh
 
 backup-local:
 	./scripts/backup-local.sh
