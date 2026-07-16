@@ -10,4 +10,9 @@ public interface BookingMatchRepository extends JpaRepository<BookingMatch, UUID
             UUID organisationId,
             UUID bookingId
     );
+
+    List<BookingMatch> findAllByOrganisationIdAndBookingIdOrderByCreatedAtAsc(
+            UUID organisationId,
+            UUID bookingId
+    );
 }

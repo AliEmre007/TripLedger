@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tripledger.audit.AuditService;
 import com.tripledger.authorization.AuthorizationService;
 import com.tripledger.authorization.Permission;
 import com.tripledger.booking.Booking;
@@ -69,6 +70,9 @@ class ReconciliationServiceTest {
 
     @Mock
     private AuthorizationService authorizationService;
+
+    @Mock
+    private AuditService auditService;
 
     @Test
     void reconcilesBookingWhenExpectedAmountIsFullyMatched() {
@@ -253,6 +257,7 @@ class ReconciliationServiceTest {
                 reconciliationResultRepository,
                 discrepancyGenerationService,
                 authorizationService,
+                auditService,
                 Clock.fixed(NOW, ZoneOffset.UTC)
         );
     }

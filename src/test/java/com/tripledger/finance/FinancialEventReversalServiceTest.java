@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tripledger.audit.AuditService;
 import com.tripledger.authorization.AuthorizationService;
 import com.tripledger.authorization.Permission;
 import com.tripledger.common.api.ApiException;
@@ -39,6 +40,9 @@ class FinancialEventReversalServiceTest {
 
     @Mock
     private AuthorizationService authorizationService;
+
+    @Mock
+    private AuditService auditService;
 
     private final List<FinancialEvent> savedEvents = new ArrayList<>();
     private FinancialEvent original;
@@ -83,6 +87,15 @@ class FinancialEventReversalServiceTest {
         assertThat(result.replacementEvent()).isNull();
         assertThat(original.reversesEventId()).isNull();
         verify(authorizationService).require(actor(), Permission.FINANCIAL_ACTION_WITH_MFA);
+        verify(auditService).recordSuccess(
+                actor(),
+                "FINANCIAL_EVENT_REVERSED",
+                AuditService.TARGET_BOOKING,
+                BOOKING_ID,
+                "financial_event:" + EVENT_ID,
+                "financial_event:" + reversal.id(),
+                "Gateway corrected duplicate payment."
+        );
     }
 
     @Test
@@ -138,6 +151,7 @@ class FinancialEventReversalServiceTest {
         return new FinancialEventReversalService(
                 financialEventRepository,
                 authorizationService,
+                auditService,
                 Clock.fixed(NOW, ZoneOffset.UTC)
         );
     }

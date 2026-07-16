@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tripledger.audit.AuditService;
 import com.tripledger.authorization.AuthorizationService;
 import com.tripledger.authorization.Permission;
 import com.tripledger.booking.Booking;
@@ -70,6 +71,9 @@ class DeterministicMatcherServiceTest {
     @Mock
     private AuthorizationService authorizationService;
 
+    @Mock
+    private AuditService auditService;
+
     @Test
     void createsAutomaticMatchForSingleExactCandidate() {
         arrangeBookingAndReadyEconomics("950.00");
@@ -96,6 +100,15 @@ class DeterministicMatcherServiceTest {
         assertThat(result.currency()).isEqualTo("EUR");
         verify(authorizationService).require(actor(), Permission.FINANCIAL_ACTION);
         verify(matchAllocationRepository).save(any(MatchAllocation.class));
+        verify(auditService).recordSuccess(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+        );
     }
 
     @Test
@@ -209,6 +222,7 @@ class DeterministicMatcherServiceTest {
                 matchAllocationRepository,
                 bookingEconomicsService,
                 authorizationService,
+                auditService,
                 Clock.fixed(NOW, ZoneOffset.UTC)
         );
     }

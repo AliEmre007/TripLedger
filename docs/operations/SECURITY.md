@@ -81,6 +81,10 @@ Generated discrepancies are organisation-scoped and deduplicated by active cause
 
 Discrepancy list and detail reads use `PROTECTED_READ` and are filtered by the actor organisation. Missing and cross-organisation discrepancy ids return `DISCREPANCY_NOT_FOUND`. Queue summaries are calculated from the same tenant-scoped filters as the listed rows, and detail responses expose generated evidence and booking references without raw source payloads.
 
+Booking timeline reads use `PROTECTED_READ` and are filtered by the actor organisation. Missing and cross-organisation booking ids return `BOOKING_NOT_FOUND`. Timeline responses distinguish source, system-derived, and user-controlled events and return record references without raw source payloads.
+
+Audit events are append-only. The validation-release schema rejects normal update and delete attempts on `audit_event`, and current financial reversal, matching, and reconciliation actions write booking-scoped audit evidence inside the application transaction.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

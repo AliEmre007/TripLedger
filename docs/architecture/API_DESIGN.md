@@ -860,6 +860,56 @@ Errors:
 - `DISCREPANCY_NOT_FOUND`
 - `INVALID_REQUEST`
 
+### `GET /api/v1/bookings/{bookingId}/timeline`
+
+Returns a chronological booking timeline inside the actor organisation.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
+Example response:
+
+```json
+{
+  "bookingId": "uuid",
+  "organisationId": "uuid",
+  "events": [
+    {
+      "id": "uuid",
+      "occurredAt": "2026-07-16T08:00:00Z",
+      "category": "SOURCE",
+      "eventType": "FINANCIAL_EVENT_ACCEPTED",
+      "title": "Financial event accepted",
+      "summary": "CUSTOMER_PAYMENT EUR 950.00 accepted.",
+      "targetType": "FINANCIAL_EVENT",
+      "targetId": "uuid",
+      "actorUserId": null,
+      "amount": 950.00,
+      "currency": "EUR",
+      "status": "CUSTOMER_PAYMENT",
+      "evidenceReference": "financial_event:uuid"
+    }
+  ]
+}
+```
+
+Rules:
+
+- Events are ordered chronologically.
+- `SOURCE` events represent accepted imported/source evidence.
+- `SYSTEM` events represent derived calculations, matches, reconciliation results, and discrepancies.
+- `USER` events represent user-controlled financial actions recorded through audit events or user-created financial evidence.
+- Missing and cross-organisation booking ids return `BOOKING_NOT_FOUND`.
+- Raw source payloads are not returned.
+
+Errors:
+
+- `BOOKING_NOT_FOUND`
+
 ### Actuator
 
 - `GET /actuator/health`

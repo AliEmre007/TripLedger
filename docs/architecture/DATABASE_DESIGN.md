@@ -530,6 +530,7 @@ Implementation note:
 Append-only:
 
 - No application update/delete path.
+- `V16__booking_timeline_audit_projection.sql` creates `audit_event` and database triggers that reject update and delete attempts.
 - Restrict database grants for normal application role.
 
 ### export_batch

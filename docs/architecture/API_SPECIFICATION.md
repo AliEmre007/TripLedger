@@ -907,6 +907,17 @@ Returns chronological source, system-derived, and user-controlled events.
 
 Roles: all authenticated roles with record access.
 
+Validation-release response includes booking id, organisation id, and ordered events with:
+
+- event id and timestamp;
+- category: `SOURCE`, `SYSTEM`, or `USER`;
+- event type, title, and safe summary;
+- target type/id and evidence reference;
+- actor user id when the event is user-controlled;
+- amount/currency/status when applicable.
+
+Missing and cross-organisation booking ids return `BOOKING_NOT_FOUND`.
+
 ### `GET /audit-events`
 
 Searches audit events.

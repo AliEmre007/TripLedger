@@ -1,5 +1,6 @@
 package com.tripledger.reconciliation;
 
+import com.tripledger.audit.AuditService;
 import com.tripledger.authorization.AuthorizationService;
 import com.tripledger.authorization.Permission;
 import com.tripledger.booking.Booking;
@@ -36,6 +37,7 @@ public class ReconciliationService {
     private final ReconciliationResultRepository reconciliationResultRepository;
     private final DiscrepancyGenerationService discrepancyGenerationService;
     private final AuthorizationService authorizationService;
+    private final AuditService auditService;
     private final Clock clock;
 
     public ReconciliationService(BookingRepository bookingRepository,
@@ -45,6 +47,7 @@ public class ReconciliationService {
                                  ReconciliationResultRepository reconciliationResultRepository,
                                  DiscrepancyGenerationService discrepancyGenerationService,
                                  AuthorizationService authorizationService,
+                                 AuditService auditService,
                                  Clock clock) {
         this.bookingRepository = bookingRepository;
         this.bookingEconomicsService = bookingEconomicsService;
@@ -53,6 +56,7 @@ public class ReconciliationService {
         this.reconciliationResultRepository = reconciliationResultRepository;
         this.discrepancyGenerationService = discrepancyGenerationService;
         this.authorizationService = authorizationService;
+        this.auditService = auditService;
         this.clock = clock;
     }
 
@@ -112,6 +116,15 @@ public class ReconciliationService {
                 now,
                 null
         ));
+        auditService.recordSuccess(
+                actor,
+                "RECONCILIATION_RUN_RECORDED",
+                AuditService.TARGET_BOOKING,
+                booking.id(),
+                null,
+                "reconciliation_result:" + result.id(),
+                result.status().name()
+        );
 
         return new ReconciliationResultDetail(
                 result.id(),

@@ -1,5 +1,6 @@
 package com.tripledger.matching;
 
+import com.tripledger.audit.AuditService;
 import com.tripledger.authorization.AuthorizationService;
 import com.tripledger.authorization.Permission;
 import com.tripledger.booking.Booking;
@@ -39,6 +40,7 @@ public class DeterministicMatcherService {
     private final MatchAllocationRepository matchAllocationRepository;
     private final BookingEconomicsService bookingEconomicsService;
     private final AuthorizationService authorizationService;
+    private final AuditService auditService;
     private final Clock clock;
 
     public DeterministicMatcherService(BookingRepository bookingRepository,
@@ -48,6 +50,7 @@ public class DeterministicMatcherService {
                                        MatchAllocationRepository matchAllocationRepository,
                                        BookingEconomicsService bookingEconomicsService,
                                        AuthorizationService authorizationService,
+                                       AuditService auditService,
                                        Clock clock) {
         this.bookingRepository = bookingRepository;
         this.financialEventRepository = financialEventRepository;
@@ -56,6 +59,7 @@ public class DeterministicMatcherService {
         this.matchAllocationRepository = matchAllocationRepository;
         this.bookingEconomicsService = bookingEconomicsService;
         this.authorizationService = authorizationService;
+        this.auditService = auditService;
         this.clock = clock;
     }
 
@@ -91,6 +95,15 @@ public class DeterministicMatcherService {
         if (candidates.size() > 1) {
             return reviewRequired(actor, booking, "AMBIGUOUS_MATCH");
         }
+        auditService.recordSuccess(
+                actor,
+                "MATCHING_RUN_COMPLETED",
+                AuditService.TARGET_BOOKING,
+                booking.id(),
+                null,
+                null,
+                "No unique deterministic candidate."
+        );
         return new MatchingRunResult(
                 booking.id(),
                 MatchStatus.REVIEW_REQUIRED,
@@ -131,6 +144,15 @@ public class DeterministicMatcherService {
                 candidate.event().amount(),
                 candidate.event().currency()
         ));
+        auditService.recordSuccess(
+                actor,
+                "MATCH_CREATED",
+                AuditService.TARGET_BOOKING,
+                booking.id(),
+                null,
+                "booking_match:" + match.id(),
+                RULE_EXACT_BOOKING_AMOUNT
+        );
         return new MatchingRunResult(
                 booking.id(),
                 MatchStatus.ACTIVE,
@@ -159,6 +181,15 @@ public class DeterministicMatcherService {
                 null,
                 reason
         ));
+        auditService.recordSuccess(
+                actor,
+                "MATCH_REVIEW_REQUIRED",
+                AuditService.TARGET_BOOKING,
+                booking.id(),
+                null,
+                "booking_match:" + match.id(),
+                reason
+        );
         return new MatchingRunResult(
                 booking.id(),
                 MatchStatus.REVIEW_REQUIRED,

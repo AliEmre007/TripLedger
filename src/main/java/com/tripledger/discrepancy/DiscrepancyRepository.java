@@ -52,6 +52,8 @@ public interface DiscrepancyRepository extends JpaRepository<Discrepancy, UUID> 
 
     Optional<Discrepancy> findByOrganisationIdAndId(UUID organisationId, UUID id);
 
+    List<Discrepancy> findAllByOrganisationIdAndBookingIdOrderByCreatedAtAsc(UUID organisationId, UUID bookingId);
+
     Optional<Discrepancy>
             findByOrganisationIdAndBookingIdAndTypeAndComponentAndCauseIdentityAndStatus(
                     UUID organisationId,

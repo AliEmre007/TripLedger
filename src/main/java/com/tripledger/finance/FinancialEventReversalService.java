@@ -1,5 +1,6 @@
 package com.tripledger.finance;
 
+import com.tripledger.audit.AuditService;
 import com.tripledger.authorization.AuthorizationService;
 import com.tripledger.authorization.Permission;
 import com.tripledger.common.api.ApiErrorResponse;
@@ -22,13 +23,16 @@ public class FinancialEventReversalService {
 
     private final FinancialEventRepository financialEventRepository;
     private final AuthorizationService authorizationService;
+    private final AuditService auditService;
     private final Clock clock;
 
     public FinancialEventReversalService(FinancialEventRepository financialEventRepository,
                                          AuthorizationService authorizationService,
+                                         AuditService auditService,
                                          Clock clock) {
         this.financialEventRepository = financialEventRepository;
         this.authorizationService = authorizationService;
+        this.auditService = auditService;
         this.clock = clock;
     }
 
@@ -99,6 +103,18 @@ public class FinancialEventReversalService {
                     now
             ));
         }
+
+        auditService.recordSuccess(
+                actor,
+                "FINANCIAL_EVENT_REVERSED",
+                original.bookingId() == null ? AuditService.TARGET_FINANCIAL_EVENT : AuditService.TARGET_BOOKING,
+                original.bookingId() == null ? original.id() : original.bookingId(),
+                "financial_event:" + original.id(),
+                replacement == null
+                        ? "financial_event:" + reversal.id()
+                        : "financial_event:" + reversal.id() + ",financial_event:" + replacement.id(),
+                command.reason().trim()
+        );
 
         return new FinancialEventReversalResult(
                 FinancialEventDetail.from(reversal, null),
