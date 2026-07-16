@@ -69,6 +69,8 @@ Money and currency validation is centralised in the application money policy and
 
 Exchange-rate evidence creation requires `FINANCIAL_ACTION_WITH_MFA`. Evidence is organisation-scoped, uses exact decimal rates, stores the rounded converted result, and cannot be attached to a financial event outside the actor organisation. Reads use `PROTECTED_READ` and are filtered by organisation.
 
+Booking economics reads use `PROTECTED_READ`, are filtered by organisation, and create calculation snapshots without exposing raw source payloads. Missing financial inputs are returned as `NOT_READY` evidence rather than zero-filled values.
+
 ## Logging
 
 Logs include correlation id through MDC. Logs must not include:

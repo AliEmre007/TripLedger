@@ -14,4 +14,9 @@ public interface SupplierObligationRepository extends JpaRepository<SupplierObli
     List<SupplierObligation> findAllByOrganisationIdAndBookingIdIsNullAndBookingItemIdIsNullOrderByCreatedAtDesc(
             UUID organisationId
     );
+
+    List<SupplierObligation> findAllByOrganisationIdAndBookingIdOrderByCreatedAtAsc(
+            UUID organisationId,
+            UUID bookingId
+    );
 }

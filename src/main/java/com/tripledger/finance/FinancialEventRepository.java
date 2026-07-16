@@ -16,4 +16,6 @@ public interface FinancialEventRepository extends JpaRepository<FinancialEvent, 
     List<FinancialEvent> findAllByOrganisationIdOrderByEffectiveAtDesc(UUID organisationId);
 
     List<FinancialEvent> findAllByOrganisationIdAndBookingIdIsNullOrderByEffectiveAtDesc(UUID organisationId);
+
+    List<FinancialEvent> findAllByOrganisationIdAndBookingIdOrderByEffectiveAtAsc(UUID organisationId, UUID bookingId);
 }

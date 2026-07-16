@@ -443,6 +443,7 @@ Rules:
 - Changed content for an existing source identity is rejected with `STALE_SOURCE_VERSION`.
 - Amounts must be positive and use at most two fractional digits.
 - Supported validation-release currencies are `EUR`, `GBP`, `TRY`, and `USD`.
+- `APPROVED_DISCOUNT` is accepted as an economics reduction event and derives a `DECREASE_RECEIVED` direction.
 - Unknown or missing booking references are accepted as unmatched events for review.
 - Raw card numbers, CVV values, and unrestricted payment credentials are rejected.
 
@@ -582,6 +583,50 @@ Roles:
 - Finance.
 - Operations.
 - Read-only Manager.
+
+### `GET /api/v1/bookings/{bookingId}/economics`
+
+Calculates and returns the current booking economics snapshot.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
+Example response:
+
+```json
+{
+  "snapshotId": "uuid",
+  "bookingId": "uuid",
+  "ruleVersion": "economics-v1",
+  "currency": "EUR",
+  "contractedGrossSale": 1000.00,
+  "expectedCustomerReceivable": 950.00,
+  "expectedDeductions": 162.50,
+  "activeSupplierCost": 500.00,
+  "estimatedGrossMargin": 287.50,
+  "status": "READY",
+  "unknownComponents": [],
+  "createdAt": "2026-07-16T06:00:00Z"
+}
+```
+
+Rules:
+
+- Contracted gross sale comes from the current canonical booking amount.
+- `APPROVED_DISCOUNT` and `REFUND` events reduce expected customer receivable.
+- `CHANNEL_COMMISSION` and `PAYMENT_FEE` events produce expected deductions.
+- Confirmed, invoiced, and paid supplier obligations produce active supplier cost.
+- Missing supplier cost or missing exchange-rate evidence returns `status=NOT_READY` and leaves incomplete values null rather than substituting zero.
+- Cross-organisation booking ids return `BOOKING_NOT_FOUND`.
+
+Errors:
+
+- `BOOKING_NOT_FOUND`
+- `UNAUTHORISED_FINANCIAL_ACTION`
 
 ### Actuator
 

@@ -163,7 +163,7 @@ public class FinancialEventReversalService {
     private FinancialEventDirection directionFor(FinancialEventType eventType) {
         return switch (eventType) {
             case CUSTOMER_PAYMENT, CHANNEL_SETTLEMENT -> FinancialEventDirection.INCREASE_RECEIVED;
-            case REFUND, PAYMENT_REVERSAL -> FinancialEventDirection.DECREASE_RECEIVED;
+            case REFUND, PAYMENT_REVERSAL, APPROVED_DISCOUNT -> FinancialEventDirection.DECREASE_RECEIVED;
             case CHANNEL_COMMISSION, PAYMENT_FEE -> FinancialEventDirection.INCREASE_DEDUCTION;
             case SUPPLIER_PAYMENT -> FinancialEventDirection.INCREASE_SUPPLIER_SETTLEMENT;
             case SUPPLIER_CREDIT -> FinancialEventDirection.DECREASE_SUPPLIER_COST;

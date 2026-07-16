@@ -693,6 +693,7 @@ Response:
 
 ```json
 {
+  "snapshotId": "uuid",
   "bookingId": "uuid",
   "ruleVersion": "economics-v1",
   "currency": "EUR",
@@ -701,9 +702,17 @@ Response:
   "expectedDeductions": "162.50",
   "activeSupplierCost": "500.00",
   "estimatedGrossMargin": "287.50",
-  "unknownComponents": []
+  "status": "READY",
+  "unknownComponents": [],
+  "createdAt": "2026-07-16T06:00:00Z"
 }
 ```
+
+Rules:
+
+- Discounts are represented by `APPROVED_DISCOUNT` financial events.
+- Refunds reduce expected customer receivable while contracted gross sale remains unchanged.
+- Missing supplier cost or exchange-rate evidence returns `status=NOT_READY`; incomplete values are null, not zero.
 
 ### `GET /bookings/{bookingId}/economics/explanation`
 

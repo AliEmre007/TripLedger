@@ -9,6 +9,7 @@ public enum FinancialEventType {
     PAYMENT_REVERSAL,
     SUPPLIER_PAYMENT,
     SUPPLIER_CREDIT,
+    APPROVED_DISCOUNT,
     REVERSAL,
     MANUAL_ADJUSTMENT
 }

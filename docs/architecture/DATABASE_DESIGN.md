@@ -330,6 +330,7 @@ Checks:
 - `amount = round(amount, 2)`
 - `currency in ('EUR', 'GBP', 'TRY', 'USD')`
 - `adjustment_reason is not null` for manual adjustments.
+- `APPROVED_DISCOUNT` is supported for booking economics reductions.
 
 Immutability:
 
@@ -383,8 +384,13 @@ Notes:
 | active_supplier_cost | numeric(19,4) | nullable |
 | estimated_gross_margin | numeric(19,4) | nullable |
 | currency | char(3) | nullable |
-| unknown_components | jsonb | not null default '[]' |
+| status | text | not null |
+| unknown_components | text | not null default '[]' |
 | created_at | timestamptz | not null |
+
+Implementation note:
+
+- `V11__booking_economics_snapshot.sql` creates `calculation_snapshot` for VR-015. The current implementation stores unknown component names as text containing a JSON array shape until VR-016 adds richer explanation components.
 
 ### calculation_component
 
