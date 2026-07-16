@@ -469,6 +469,37 @@ Rules:
 - Financial and security-sensitive actions require audit.
 - Audit events are not editable or deletable through normal application functions.
 
+### Background Job
+
+Visible operational state for bounded asynchronous or production-like processing.
+
+Fields:
+
+- `id`
+- `organisation_id`
+- `job_type`
+- `status`
+- `target_type`
+- `target_id`
+- `idempotency_key`
+- `requested_by_user_id`
+- `max_attempts`
+- `attempt_count`
+- `diagnostic_category`
+- `diagnostic_message`
+- `correlation_id`
+- `requested_at`
+- `last_attempt_at`
+- `next_attempt_at`
+- `completed_at`
+
+Rules:
+
+- Jobs are organisation-scoped.
+- Validation-release jobs retry no more than three attempts.
+- Terminal failures expose diagnostic category and correlation id.
+- Idempotency key prevents duplicate processing for the same job type inside an organisation.
+
 ## 5. Critical Workflows
 
 ### Import booking source

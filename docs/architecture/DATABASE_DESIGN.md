@@ -533,6 +533,43 @@ Append-only:
 - `V16__booking_timeline_audit_projection.sql` creates `audit_event` and database triggers that reject update and delete attempts.
 - Restrict database grants for normal application role.
 
+### background_job
+
+| Column | Type | Constraint |
+|---|---|---|
+| id | uuid | primary key |
+| organisation_id | uuid | not null, foreign key organisation |
+| job_type | text | not null |
+| status | text | not null |
+| target_type | text | nullable |
+| target_id | uuid | nullable |
+| idempotency_key | text | not null |
+| requested_by_user_id | uuid | not null, foreign key app_user |
+| max_attempts | integer | not null |
+| attempt_count | integer | not null |
+| diagnostic_category | text | nullable |
+| diagnostic_message | text | nullable |
+| correlation_id | text | not null |
+| requested_at | timestamptz | not null |
+| last_attempt_at | timestamptz | nullable |
+| next_attempt_at | timestamptz | nullable |
+| completed_at | timestamptz | nullable |
+
+Checks:
+
+- `status in ('PENDING', 'RUNNING', 'SUCCEEDED', 'FAILED')`
+- `max_attempts between 1 and 3`
+- failed jobs carry diagnostic category
+- terminal jobs carry `completed_at`
+
+Unique:
+
+- `(organisation_id, job_type, idempotency_key)`
+
+Migration:
+
+- `V17__background_job_state.sql` creates `background_job` for visible bounded retry state.
+
 ### export_batch
 
 | Column | Type | Constraint |

@@ -83,6 +83,8 @@ Discrepancy list and detail reads use `PROTECTED_READ` and are filtered by the a
 
 Booking timeline reads use `PROTECTED_READ` and are filtered by the actor organisation. Missing and cross-organisation booking ids return `BOOKING_NOT_FOUND`. Timeline responses distinguish source, system-derived, and user-controlled events and return record references without raw source payloads.
 
+Background job status reads use `PROTECTED_READ` and are filtered by the actor organisation. Missing and cross-organisation job ids return `JOB_NOT_FOUND`. Job diagnostics expose bounded categories, safe messages, retry counts, and correlation ids; raw source rows and dependency secrets must not be stored in diagnostic messages.
+
 Audit events are append-only. The validation-release schema rejects normal update and delete attempts on `audit_event`, and current financial reversal, matching, and reconciliation actions write booking-scoped audit evidence inside the application transaction.
 
 ## Logging
@@ -102,6 +104,8 @@ Client-provided correlation ids are accepted only when they are bounded and safe
 - letters, numbers, `.`, `_`, `:`, and `-` only.
 
 Blank, unsafe, or overlong correlation ids are replaced with a server-generated id before being written to logs or returned in API responses.
+
+Request observability logs record method, route pattern, status, outcome, duration, stable error code when present, and correlation id. Metrics use the same safe categories and must not include source payloads, secrets, customer contact details, or free-form diagnostic text as tags.
 
 ## Security Validation
 

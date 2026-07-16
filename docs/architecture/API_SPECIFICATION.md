@@ -966,11 +966,17 @@ Unauthenticated liveness endpoint. Returns process health only.
 
 Readiness endpoint. May be restricted in production. Checks database and required dependencies.
 
-### `GET /jobs/{jobId}`
+Current implementation exposes these as `/api/v1/health/live` and `/api/v1/health/ready`, alongside
+Actuator probe endpoints `/actuator/health/liveness` and `/actuator/health/readiness`.
+
+### `GET /api/v1/jobs/{jobId}`
 
 Returns background job state, retry count, diagnostic category, and correlation id.
 
 Roles: Administrator, Finance for financial jobs; Operations for own import jobs.
+
+Current validation-release implementation exposes status for jobs inside the actor organisation through
+`PROTECTED_READ`. Missing and cross-organisation job ids return `JOB_NOT_FOUND`.
 
 ## 16. Validation Release API Boundary
 

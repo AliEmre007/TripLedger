@@ -21,6 +21,49 @@ Example response:
 
 Every response includes `X-Correlation-Id`.
 
+### `GET /api/v1/health/live`
+
+Returns process liveness only. It does not check the database, migrations, or background job store.
+
+Example response:
+
+```json
+{
+  "status": "UP",
+  "service": "tripledger",
+  "version": "0.1.0-SNAPSHOT",
+  "timestamp": "2026-07-16T08:00:00Z"
+}
+```
+
+### `GET /api/v1/health/ready`
+
+Returns dependency readiness and responds with HTTP 503 when a required dependency is not ready.
+
+Checks:
+
+- database connection;
+- migration state;
+- background job store.
+
+Example response:
+
+```json
+{
+  "status": "UP",
+  "service": "tripledger",
+  "version": "0.1.0-SNAPSHOT",
+  "timestamp": "2026-07-16T08:00:00Z",
+  "checks": [
+    {
+      "name": "database",
+      "status": "UP",
+      "detail": "Database connection is valid."
+    }
+  ]
+}
+```
+
 Correlation id rules:
 
 - A client may send `X-Correlation-Id`.
@@ -232,6 +275,47 @@ Request:
   "reason": "Template version v9 is not supported."
 }
 ```
+
+### `GET /api/v1/jobs/{jobId}`
+
+Returns visible background job state for one job inside the actor organisation.
+
+Roles:
+
+- Administrator.
+- Finance.
+- Operations.
+- Read-only Manager.
+
+Example response:
+
+```json
+{
+  "id": "uuid",
+  "organisationId": "uuid",
+  "jobType": "IMPORT_PROCESSING",
+  "status": "FAILED",
+  "targetType": "IMPORT_BATCH",
+  "targetId": "uuid",
+  "requestedByUserId": "uuid",
+  "maxAttempts": 3,
+  "attemptCount": 3,
+  "diagnosticCategory": "IMPORT_DEPENDENCY",
+  "diagnosticMessage": "Import dependency unavailable.",
+  "correlationId": "corr-123",
+  "requestedAt": "2026-07-16T06:00:00Z",
+  "lastAttemptAt": "2026-07-16T06:00:00Z",
+  "nextAttemptAt": null,
+  "completedAt": "2026-07-16T06:00:00Z"
+}
+```
+
+Rules:
+
+- `jobId` must belong to the actor organisation.
+- Validation-release retry attempts are bounded to a maximum of three.
+- Terminal failed jobs expose diagnostic category and correlation id.
+- Missing or cross-organisation ids return `JOB_NOT_FOUND`.
 
 ### `POST /api/v1/booking-imports`
 
@@ -913,7 +997,15 @@ Errors:
 ### Actuator
 
 - `GET /actuator/health`
+- `GET /actuator/health/liveness`
+- `GET /actuator/health/readiness`
 - `GET /actuator/metrics`
+
+Current application metrics include:
+
+- `tripledger.http.requests`
+- `tripledger.http.errors`
+- `tripledger.job.retries`
 
 ## Error Model
 

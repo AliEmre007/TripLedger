@@ -119,6 +119,7 @@ public class GlobalExceptionHandler {
                                                    String message,
                                                    HttpServletRequest request,
                                                    List<ApiErrorResponse.ApiErrorDetail> details) {
+        request.setAttribute(ObservabilityFilter.ERROR_CODE_ATTRIBUTE, code);
         String correlationId = resolveCorrelationId(request);
         return ResponseEntity
                 .status(status)
