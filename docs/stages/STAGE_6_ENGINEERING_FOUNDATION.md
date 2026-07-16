@@ -42,7 +42,11 @@ Stage 6 creates repeatable ways to build, test, run, deploy, and understand the 
 ## 4. Implemented Endpoints
 
 - `GET /api/v1/health`
+- `GET /api/v1/health/live`
+- `GET /api/v1/health/ready`
 - `GET /actuator/health`
+- `GET /actuator/health/liveness`
+- `GET /actuator/health/readiness`
 - `GET /actuator/metrics`
 
 Every response receives `X-Correlation-Id`. Application logs include the correlation id in MDC.
@@ -55,8 +59,9 @@ The foundation is ready when a contributor can:
 2. copy `.env.example` to `.env`;
 3. run tests with `make test`;
 4. run the system with `make run`;
-5. inspect health and metrics endpoints;
-6. understand configuration and secret handling;
-7. follow branch, pull request, and review workflow.
+5. run deployment smoke checks with `make smoke`;
+6. inspect health and metrics endpoints;
+7. understand configuration and secret handling;
+8. follow branch, pull request, and review workflow.
 
 This stage does not implement TripLedger feature workflows yet. It establishes the repeatable base for the validation-release backlog.

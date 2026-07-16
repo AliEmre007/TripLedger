@@ -1,4 +1,4 @@
-.PHONY: copy-env test verify run stop logs clean
+.PHONY: copy-env test verify run smoke stop logs clean
 
 copy-env:
 	cp .env.example .env
@@ -11,6 +11,14 @@ verify:
 
 run:
 	docker compose up --build
+
+smoke:
+	@port=$${APP_PORT:-18080}; \
+	curl -fsS "http://localhost:$${port}/api/v1/health/live" >/dev/null; \
+	curl -fsS "http://localhost:$${port}/api/v1/health/ready" >/dev/null; \
+	curl -fsS "http://localhost:$${port}/actuator/health/liveness" >/dev/null; \
+	curl -fsS "http://localhost:$${port}/actuator/health/readiness" >/dev/null; \
+	echo "Smoke checks passed on port $${port}"
 
 stop:
 	docker compose down

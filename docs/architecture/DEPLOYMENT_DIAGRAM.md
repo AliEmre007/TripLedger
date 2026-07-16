@@ -51,14 +51,16 @@ flowchart TD
 
 ```text
 Developer machine
-    TripLedger application
-    Local relational database container
-    Local identity provider or test OIDC configuration
-    Local file/object storage directory
+    Docker Compose
+        TripLedger application container
+        PostgreSQL database container
+        Maven verification container
     Synthetic acceptance fixtures
 ```
 
 Goal: a new developer can start the documented environment within 30 minutes excluding initial software downloads.
+
+Local environment is configured from `.env.example` copied to `.env`. The template contains only safe placeholders. Local deployment smoke evidence is produced with `make smoke`, which checks application and Actuator liveness/readiness endpoints.
 
 ## 5. Environments
 
@@ -84,6 +86,36 @@ Commit
  -> run readiness and smoke checks
  -> record deployment evidence
 ```
+
+Validation-release deployment evidence records:
+
+- commit sha;
+- environment name;
+- operator;
+- timestamp;
+- configuration source, without secret values;
+- `make verify` result;
+- smoke-check result;
+- liveness and readiness endpoint results;
+- migration version;
+- rollback decision or previous known-good commit.
+
+Required environment values:
+
+| Value | Local source | Production-like source |
+|---|---|---|
+| HTTP port | `.env` `APP_PORT` | platform routing or service config |
+| Database URL | Compose service default | deployment environment secret/config |
+| Database username | `.env` `POSTGRES_USER` | secret manager |
+| Database password | `.env` `POSTGRES_PASSWORD` | secret manager |
+| Allowed origins | `.env` `TRIPLEDGER_ALLOWED_ORIGINS` | deployment config |
+| Log level | `.env` `TRIPLEDGER_LOG_LEVEL` | deployment config |
+
+Rollback rule:
+
+- application-only failure rolls back to the previous known-good application version;
+- migration failure in local may reset volumes, but shared or pilot environments must restore from backup or fix forward with a new migration;
+- Flyway history must not be edited manually.
 
 ## 7. Backup and Restore
 

@@ -29,6 +29,7 @@ This is the implementation-facing security guide. The full Stage 4 security desi
 - `.env.example` may contain only safe placeholders.
 - Production secrets must come from the deployment environment or secret manager.
 - Logs and errors must not include secrets.
+- Deployment evidence must record configuration source and version without recording secret values.
 
 ## Authentication and Authorization
 

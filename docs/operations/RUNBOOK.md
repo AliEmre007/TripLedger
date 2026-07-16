@@ -7,6 +7,25 @@ cp .env.example .env
 docker compose up --build
 ```
 
+Required local tools:
+
+- Docker Engine or Docker Desktop with Compose v2.
+- Git.
+- `curl` for smoke checks.
+
+Local environment variables:
+
+| Variable | Required | Default or example | Notes |
+|---|---|---|---|
+| `APP_PORT` | yes | `18080` | Host port for the application container. |
+| `POSTGRES_DB` | yes | `tripledger` | Local database name. |
+| `POSTGRES_USER` | yes | `tripledger` | Local database user. |
+| `POSTGRES_PASSWORD` | yes | `replace-with-local-dev-password` | Local-only password. Do not reuse in shared environments. |
+| `TRIPLEDGER_ALLOWED_ORIGINS` | yes | `http://localhost:3000,http://localhost:8080,http://localhost:18080` | Local CORS origins. |
+| `TRIPLEDGER_LOG_LEVEL` | yes | `INFO` | Raise only for short investigations. |
+
+Do not commit `.env`. `.env.example` must contain placeholders only.
+
 Health checks:
 
 ```bash
@@ -27,6 +46,25 @@ curl -i http://localhost:18080/actuator/metrics/tripledger.http.errors
 curl -i http://localhost:18080/actuator/metrics/tripledger.job.retries
 ```
 
+Deployment smoke check:
+
+```bash
+make smoke
+```
+
+Expected result:
+
+```text
+Smoke checks passed on port 18080
+```
+
+The smoke check verifies:
+
+- `GET /api/v1/health/live`;
+- `GET /api/v1/health/ready`;
+- `GET /actuator/health/liveness`;
+- `GET /actuator/health/readiness`.
+
 Logs:
 
 ```bash
@@ -44,6 +82,41 @@ Reset local database:
 ```bash
 docker compose down -v
 ```
+
+## Deployment Procedure
+
+Validation-release local deployment:
+
+1. Confirm the worktree is clean: `git status --short`.
+2. Run `make verify`.
+3. Copy safe environment defaults: `cp .env.example .env`.
+4. Replace local-only placeholders in `.env`.
+5. Start the stack: `docker compose up --build`.
+6. In another terminal, run `make smoke`.
+7. Record commit sha, smoke result, timestamp, and any known limitations.
+
+Production-like pilot deployment must additionally provide:
+
+- external secret management for database credentials and OIDC configuration;
+- HTTPS termination;
+- managed PostgreSQL or an equivalent backed-up database;
+- log and metrics collection;
+- backup and restore evidence before real pilot data.
+
+## Rollback
+
+Validation-release local rollback:
+
+1. Stop the stack: `docker compose down`.
+2. Check out the previous known-good commit.
+3. Rebuild and start: `docker compose up --build`.
+4. Run `make smoke`.
+
+Database rollback rule:
+
+- Do not manually edit Flyway history.
+- Do not reset or restore real data without an approved backup/restore plan.
+- If a migration has reached a shared or pilot environment, fix forward with a new migration unless an approved restore procedure is being executed.
 
 ## Common Failure Checks
 
@@ -64,6 +137,14 @@ Change `APP_PORT` in `.env`. Add a local Compose override if direct host access 
 2. Confirm migration files under `src/main/resources/db/migration`.
 3. For local-only data, reset with `docker compose down -v`.
 4. Never reset production data without an approved recovery plan.
+
+### Smoke check fails
+
+1. Run `docker compose ps`.
+2. Run `docker compose logs app`.
+3. Run `curl -i http://localhost:${APP_PORT:-18080}/api/v1/health/ready`.
+4. Investigate the failed readiness check before retrying deployment.
+5. If the new build cannot become ready, roll back to the previous known-good commit.
 
 ### Readiness is down
 

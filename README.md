@@ -18,11 +18,14 @@ Maven does not need to be installed locally when using the Docker commands below
 cp .env.example .env
 docker compose run --rm test mvn -B test
 docker compose up --build
+make smoke
 ```
 
 Open:
 
 - application health: http://localhost:18080/api/v1/health
+- liveness: http://localhost:18080/api/v1/health/live
+- readiness: http://localhost:18080/api/v1/health/ready
 - actuator health: http://localhost:18080/actuator/health
 - actuator metrics: http://localhost:18080/actuator/metrics
 
@@ -45,6 +48,7 @@ make copy-env   # create .env from template
 make test       # run unit tests in Maven container
 make verify     # run tests and checkstyle in Maven container
 make run        # build and run app + PostgreSQL
+make smoke      # run local liveness/readiness smoke checks
 make stop       # stop services
 make logs       # follow app logs
 make clean      # stop services and delete volumes
@@ -79,6 +83,14 @@ Main variables:
 | `TRIPLEDGER_ALLOWED_ORIGINS` | Local CORS origin list for future UI work |
 | `TRIPLEDGER_LOG_LEVEL` | Application log level |
 
+Deployment smoke check:
+
+```bash
+make smoke
+```
+
+The smoke check expects the application to be running and verifies app-level liveness/readiness plus Actuator liveness/readiness. It fails fast if the process is not live or dependencies are not ready.
+
 ## Engineering Foundation
 
 Included now:
@@ -92,7 +104,7 @@ Included now:
 - Standard JSON error response model.
 - Correlation id response header and log MDC.
 - Health endpoint at `/api/v1/health`.
-- Actuator health and metrics endpoints.
+- Liveness/readiness endpoints and Actuator health/metrics endpoints.
 - Initial documentation for contributors, agents, security, tests, and operations.
 
 ## Documentation Map
