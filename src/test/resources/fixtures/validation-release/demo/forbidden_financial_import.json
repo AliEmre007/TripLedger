@@ -1,0 +1,15 @@
+{
+  "scenarioId": "forbidden_adjustment",
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/financial-event-imports",
+    "actorRole": "OPERATIONS",
+    "mfaSatisfied": false,
+    "sourceFile": "financial_events.csv"
+  },
+  "expectedError": {
+    "status": 403,
+    "code": "UNAUTHORISED_FINANCIAL_ACTION",
+    "correlationIdRequired": true
+  }
+}

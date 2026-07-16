@@ -1,0 +1,21 @@
+{
+  "scenarioId": "restore",
+  "procedure": "docs/operations/BACKUP_RESTORE_REHEARSAL.md",
+  "commands": [
+    "make backup-local",
+    "BACKUP_DIR=/tmp/tripledger-backups/<backup-id> RESTORE_CONFIRM=restore-local make restore-local",
+    "make smoke"
+  ],
+  "expectedEvidence": {
+    "manifestFile": "manifest.json",
+    "restoreEvidenceFile": "restore-evidence.json",
+    "status": "RESTORED",
+    "criticalTableCountsMustMatch": [
+      "booking",
+      "financial_event",
+      "booking_match",
+      "discrepancy",
+      "audit_event"
+    ]
+  }
+}

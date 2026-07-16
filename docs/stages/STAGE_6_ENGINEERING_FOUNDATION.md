@@ -26,6 +26,7 @@ Stage 6 creates repeatable ways to build, test, run, deploy, and understand the 
 | Test strategy | `TEST_STRATEGY.md` |
 | Runbook | `RUNBOOK.md` |
 | Backup/restore rehearsal procedure | `BACKUP_RESTORE_REHEARSAL.md`, `scripts/backup-local.sh`, `scripts/restore-local.sh` |
+| End-to-end validation demo dataset | `VALIDATION_DEMO.md`, `src/test/resources/fixtures/validation-release/demo` |
 | Branch and PR workflow | `docs/CONTRIBUTING.md` |
 
 ## 3. Technology Foundation
@@ -40,6 +41,7 @@ Stage 6 creates repeatable ways to build, test, run, deploy, and understand the 
 - Checkstyle for initial linting.
 - GitHub Actions for CI.
 - Local PostgreSQL backup and restore rehearsal scripts.
+- Synthetic end-to-end validation demo dataset and manifest checks.
 
 ## 4. Implemented Endpoints
 

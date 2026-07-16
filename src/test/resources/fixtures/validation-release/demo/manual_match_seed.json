@@ -1,0 +1,12 @@
+[
+  {
+    "scenarioId": "short_settlement",
+    "bookingReference": "DEMO-SHORT-1006",
+    "externalEventId": "DEMO-PAY-SHORT-1006",
+    "matchType": "MANUAL",
+    "matchStatus": "ACTIVE",
+    "allocationAmount": "650.00",
+    "allocationCurrency": "EUR",
+    "reason": "Seeded partial allocation for short-settlement demo evidence."
+  }
+]

@@ -1,4 +1,4 @@
-.PHONY: copy-env test verify run smoke backup-local restore-local stop logs clean
+.PHONY: copy-env test verify demo-validate run smoke backup-local restore-local stop logs clean
 
 copy-env:
 	cp .env.example .env
@@ -8,6 +8,9 @@ test:
 
 verify:
 	docker compose run --rm test mvn -B verify
+
+demo-validate:
+	docker compose run --rm test mvn -B -Dtest=EndToEndDemoDatasetTest test
 
 run:
 	docker compose up --build

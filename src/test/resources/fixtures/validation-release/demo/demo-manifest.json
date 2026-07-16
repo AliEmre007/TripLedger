@@ -1,0 +1,208 @@
+{
+  "slice": "VR-026",
+  "description": "End-to-end validation demo dataset covering normal, exception, authorization, FX, duplicate, and restore evidence paths.",
+  "sourceFiles": [
+    {
+      "path": "bookings.csv",
+      "type": "BOOKING_CSV",
+      "expectedRows": 6
+    },
+    {
+      "path": "bookings_duplicate.csv",
+      "type": "BOOKING_CSV",
+      "expectedRows": 1,
+      "expectedOutcome": "DUPLICATE"
+    },
+    {
+      "path": "supplier_obligations.csv",
+      "type": "SUPPLIER_OBLIGATION_CSV",
+      "expectedRows": 6
+    },
+    {
+      "path": "financial_events.csv",
+      "type": "FINANCIAL_EVENT_CSV",
+      "expectedRows": 12
+    },
+    {
+      "path": "exchange_rate_evidence.json",
+      "type": "EXCHANGE_RATE_EVIDENCE",
+      "expectedRows": 1
+    },
+    {
+      "path": "manual_match_seed.json",
+      "type": "MATCH_SEED",
+      "expectedRows": 1
+    },
+    {
+      "path": "forbidden_financial_import.json",
+      "type": "AUTHORIZATION_EXPECTATION",
+      "expectedRows": 1
+    },
+    {
+      "path": "restore_rehearsal_evidence.json",
+      "type": "RESTORE_EXPECTATION",
+      "expectedRows": 1
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "exact_booking",
+      "name": "Exact booking reconciles automatically",
+      "bookingReference": "DEMO-EXACT-1001",
+      "sourceFiles": ["bookings.csv", "supplier_obligations.csv", "financial_events.csv"],
+      "expected": {
+        "calculationStatus": "READY",
+        "expectedCustomerReceivable": "1000.00",
+        "expectedDeductions": "150.00",
+        "activeSupplierCost": "600.00",
+        "estimatedGrossMargin": "250.00",
+        "currency": "EUR",
+        "matchStatus": "ACTIVE",
+        "matchRule": "EXACT_BOOKING_AMOUNT",
+        "matchedAmount": "1000.00",
+        "reconciliationStatus": "RECONCILED",
+        "varianceAmount": "0.00",
+        "timelineEvidence": ["BOOKING_IMPORTED", "FINANCIAL_EVENT_IMPORTED", "MATCH_CREATED"]
+      }
+    },
+    {
+      "id": "ota_settlement",
+      "name": "OTA settlement preserves deduction evidence",
+      "bookingReference": "DEMO-OTA-1002",
+      "sourceFiles": ["bookings.csv", "supplier_obligations.csv", "financial_events.csv"],
+      "expected": {
+        "calculationStatus": "READY",
+        "expectedCustomerReceivable": "900.00",
+        "expectedDeductions": "100.00",
+        "activeSupplierCost": "500.00",
+        "estimatedGrossMargin": "300.00",
+        "currency": "EUR",
+        "matchStatus": "ACTIVE",
+        "matchRule": "EXACT_BOOKING_AMOUNT",
+        "matchedAmount": "900.00",
+        "settlementAmount": "800.00",
+        "reconciliationStatus": "RECONCILED",
+        "varianceAmount": "0.00"
+      }
+    },
+    {
+      "id": "cancellation_refund",
+      "name": "Cancellation and refund reduce expected receivable",
+      "bookingReference": "DEMO-CANCEL-1003",
+      "sourceFiles": ["bookings.csv", "supplier_obligations.csv", "financial_events.csv"],
+      "expected": {
+        "calculationStatus": "READY",
+        "expectedCustomerReceivable": "0.00",
+        "expectedDeductions": "0.00",
+        "activeSupplierCost": "100.00",
+        "estimatedGrossMargin": "-100.00",
+        "currency": "EUR",
+        "matchStatus": "NO_CANDIDATE_REQUIRED",
+        "reconciliationStatus": "RECONCILED",
+        "varianceAmount": "0.00"
+      }
+    },
+    {
+      "id": "ambiguous_payment",
+      "name": "Ambiguous payment remains unmatched for review",
+      "bookingReference": "DEMO-AMB-1004",
+      "sourceFiles": ["bookings.csv", "supplier_obligations.csv", "financial_events.csv"],
+      "expected": {
+        "calculationStatus": "READY",
+        "expectedCustomerReceivable": "300.00",
+        "expectedDeductions": "0.00",
+        "activeSupplierCost": "100.00",
+        "estimatedGrossMargin": "200.00",
+        "currency": "EUR",
+        "matchStatus": "REVIEW_REQUIRED",
+        "matchRule": "AMBIGUOUS_MATCH",
+        "reconciliationStatus": "DISCREPANT",
+        "discrepancyType": "AMBIGUOUS_MATCH"
+      }
+    },
+    {
+      "id": "duplicate_import",
+      "name": "Duplicate import creates no duplicate booking effect",
+      "bookingReference": "DEMO-EXACT-1001",
+      "sourceFiles": ["bookings.csv", "bookings_duplicate.csv"],
+      "expected": {
+        "duplicateRows": 1,
+        "duplicateEffect": "NO_DOMAIN_WRITE",
+        "batchStatus": "COMPLETED"
+      }
+    },
+    {
+      "id": "fx_case",
+      "name": "FX payment matches through explicit exchange-rate evidence",
+      "bookingReference": "DEMO-FX-1005",
+      "sourceFiles": [
+        "bookings.csv",
+        "supplier_obligations.csv",
+        "financial_events.csv",
+        "exchange_rate_evidence.json"
+      ],
+      "expected": {
+        "calculationStatus": "READY",
+        "expectedCustomerReceivable": "1000.00",
+        "expectedDeductions": "0.00",
+        "activeSupplierCost": "550.00",
+        "estimatedGrossMargin": "450.00",
+        "currency": "EUR",
+        "sourcePaymentAmount": "1100.00",
+        "sourcePaymentCurrency": "USD",
+        "exchangeRateTargetAmount": "1000.00",
+        "matchStatus": "ACTIVE",
+        "matchRule": "EXACT_BOOKING_AMOUNT",
+        "matchedAmount": "1000.00",
+        "reconciliationStatus": "RECONCILED",
+        "varianceAmount": "0.00"
+      }
+    },
+    {
+      "id": "short_settlement",
+      "name": "Short settlement produces discrepancy evidence",
+      "bookingReference": "DEMO-SHORT-1006",
+      "sourceFiles": [
+        "bookings.csv",
+        "supplier_obligations.csv",
+        "financial_events.csv",
+        "manual_match_seed.json"
+      ],
+      "expected": {
+        "calculationStatus": "READY",
+        "expectedCustomerReceivable": "700.00",
+        "expectedDeductions": "0.00",
+        "activeSupplierCost": "400.00",
+        "estimatedGrossMargin": "300.00",
+        "currency": "EUR",
+        "matchStatus": "ACTIVE",
+        "matchType": "MANUAL",
+        "matchedAmount": "650.00",
+        "reconciliationStatus": "PARTIALLY_RECONCILED",
+        "varianceAmount": "50.00",
+        "discrepancyType": "SHORT_SETTLEMENT"
+      }
+    },
+    {
+      "id": "forbidden_adjustment",
+      "name": "Operations actor cannot perform financial import",
+      "sourceFiles": ["forbidden_financial_import.json"],
+      "expected": {
+        "httpStatus": 403,
+        "errorCode": "UNAUTHORISED_FINANCIAL_ACTION",
+        "correlationIdRequired": true
+      }
+    },
+    {
+      "id": "restore",
+      "name": "Backup restore evidence closes recovery path",
+      "sourceFiles": ["restore_rehearsal_evidence.json"],
+      "expected": {
+        "restoreStatus": "RESTORED",
+        "manifestRequired": true,
+        "postRestoreSmokeRequired": true,
+        "criticalCountsMustMatch": true
+      }
+    }
+  ]
+}

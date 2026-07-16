@@ -1,0 +1,2 @@
+scenario_id,template_type,template_version,organisation_code,source_system_code,external_booking_id,source_version,source_row_number,booking_date,service_start_date,service_end_date,lifecycle_status,item_external_id,service_type,item_start_date,item_end_date,selling_amount,selling_currency,customer_reference
+duplicate_import,BOOKING,1,ORG-DEMO,OTA-DEMO,DEMO-EXACT-1001,1,2,2026-07-01,2026-08-10,2026-08-15,CONFIRMED,DEMO-EXACT-1001-ROOM,HOTEL,2026-08-10,2026-08-15,1000.00,EUR,DEMO-CUST-1001

@@ -48,6 +48,7 @@ This directory keeps project knowledge out of the repository root while preservi
 - [Security](operations/SECURITY.md)
 - [Test strategy](operations/TEST_STRATEGY.md)
 - [Runbook](operations/RUNBOOK.md)
+- [Validation demo](operations/VALIDATION_DEMO.md)
 
 ## Stages
 

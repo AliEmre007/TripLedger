@@ -47,6 +47,7 @@ docker compose down -v
 make copy-env   # create .env from template
 make test       # run unit tests in Maven container
 make verify     # run tests and checkstyle in Maven container
+make demo-validate # validate the end-to-end demo dataset
 make run        # build and run app + PostgreSQL
 make smoke      # run local liveness/readiness smoke checks
 make backup-local   # create local PostgreSQL dump and manifest
@@ -122,6 +123,7 @@ Included now:
 | [Security](docs/operations/SECURITY.md) | Authentication, authorization, secrets, data classification |
 | [Test strategy](docs/operations/TEST_STRATEGY.md) | Test layers, commands, fixture approach |
 | [Runbook](docs/operations/RUNBOOK.md) | Local run, health checks, backup/restore, incident steps |
+| [Validation demo](docs/operations/VALIDATION_DEMO.md) | End-to-end synthetic demo dataset and evidence path |
 | [AGENTS.md](AGENTS.md) | Rules for AI/coding agents working in this repo |
 | [ADRs](docs/architecture/ADRs/) | Architecture decision records |
 

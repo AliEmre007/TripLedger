@@ -1,0 +1,15 @@
+[
+  {
+    "scenarioId": "fx_case",
+    "bookingReference": "DEMO-FX-1005",
+    "externalEventId": "DEMO-PAY-FX-1005",
+    "sourceAmount": "1100.00",
+    "sourceCurrency": "USD",
+    "targetAmount": "1000.00",
+    "targetCurrency": "EUR",
+    "rate": "0.909090909091",
+    "effectiveAt": "2026-07-06T10:00:00Z",
+    "rateSource": "demo-fx-table",
+    "roundingPolicyVersion": "money-v1"
+  }
+]
